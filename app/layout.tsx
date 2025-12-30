@@ -4,6 +4,7 @@ import { LanguageProvider } from "./context/LanguageContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import CartSidebar from "./components/CartSidebar";
+import CookieNotice from "./components/CookieNotice";
 import "./globals.css";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Header />
               <CartSidebar />
               <main className="flex-grow">{children}</main>
+              <CookieNotice/>
               <Footer />
             </CheckoutProvider>
           </CartProvider>

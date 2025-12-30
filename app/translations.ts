@@ -95,6 +95,32 @@ export const translations = {
       { title: "Vinograd 5", description: "Zalazak sunca nad vinogradom." },
       { title: "Video Vinograda", description: "Kratki video našeg vinograda." },
     ],
+    privacyPage: {
+      title: "Pravila privatnosti",
+      paragraphs: [
+        "Ova web stranica poštuje privatnost svojih korisnika i posvećena je zaštiti osobnih podataka u skladu s važećim zakonima, uključujući Opću uredbu o zaštiti podataka (GDPR).",
+        "Prikupljamo samo one osobne podatke koji su nužni za obradu narudžbi i komunikaciju s korisnicima, poput imena, prezimena, adrese, e-mail adrese i telefonskog broja.",
+        "Osobni podaci koriste se isključivo u svrhu obrade narudžbi, isporuke proizvoda i odgovaranja na upite korisnika te se neće dijeliti s trećim stranama, osim kada je to nužno za izvršenje usluge (npr. dostavne službe).",
+        "Korisnici u svakom trenutku imaju pravo zatražiti uvid, ispravak ili brisanje svojih osobnih podataka slanjem zahtjeva putem kontakt podataka navedenih na web stranici.",
+        "Ova web stranica može koristiti kolačiće (cookies) u svrhu poboljšanja korisničkog iskustva."
+      ],
+    },
+    termsPage: {
+      title: "Uvjeti korištenja",
+      paragraphs: [
+        "Korištenjem ove web stranice prihvaćate ove uvjete korištenja u cijelosti. Ako se ne slažete s uvjetima, molimo vas da ne koristite ovu web stranicu.",
+        "Sav sadržaj na web stranici, uključujući tekstove, slike i ostale materijale, vlasništvo je Vina Ivas te se ne smije koristiti bez prethodnog dopuštenja.",
+        "Korisnici se obvezuju koristiti web stranicu na zakonit način te se suzdržati od bilo kakvih radnji koje bi mogle prouzročiti štetu web stranici ili drugim korisnicima.",
+        "Vina Ivas zadržava pravo izmjene sadržaja i uvjeta korištenja u bilo kojem trenutku bez prethodne najave.",
+        "Iako nastojimo osigurati točnost svih informacija, ne preuzimamo odgovornost za eventualne pogreške ili prekide u radu web stranice."
+      ],
+    },
+    cookieNotice: {
+      text: "Korištenjem ove web stranice pristajete na uporabu kolačića. Ako se s time ne slažete, molimo napustite stranicu.",
+      accept: "Prihvati",
+      decline: "Odbij",
+      terms: "Uvjeti korištenja",
+    },
   },
   en: {
     nav: { home: "Home", vineyard: "Vineyard", wines: "Wines", shop: "Shop", contact: "Contact" },
@@ -175,6 +201,32 @@ export const translations = {
       { title: "Vineyard 5", description: "Sunset over the vineyard." },
       { title: "Vineyard Video", description: "Short video of our vineyard." },
     ],
+    privacyPage: {
+      title: "Privacy Policy",
+      paragraphs: [
+        "This website respects the privacy of its users and is committed to protecting personal data in accordance with applicable laws, including the General Data Protection Regulation (GDPR).",
+        "We collect only the personal data necessary to process orders and communicate with customers, such as name, address, email address, and phone number.",
+        "Personal data is used exclusively for order processing, product delivery, and responding to customer inquiries, and will not be shared with third parties except where necessary to provide the service (e.g. delivery services).",
+        "Users have the right to request access to, correction, or deletion of their personal data at any time by contacting us using the details provided on the website.",
+        "This website may use cookies to improve the user experience."
+      ],
+    },
+    termsPage: {
+      title: "Terms of Service",
+      paragraphs: [
+        "By using this website, you agree to these terms of service in full. If you do not agree with the terms, please do not use this website.",
+        "All content on this website, including text, images, and other materials, is the property of Vina Ivas and may not be used without prior permission.",
+        "Users agree to use the website in a lawful manner and refrain from any actions that could cause harm to the website or other users.",
+        "Vina Ivas reserves the right to modify the content and terms of service at any time without prior notice.",
+        "While we strive to ensure the accuracy of all information, we do not accept responsibility for any errors or interruptions in the operation of the website."
+      ],
+    },
+    cookieNotice: {
+      text: "By using this website, you agree to the use of cookies. If you do not agree, please leave the website.",
+      accept: "Accept",
+      decline: "Decline",
+      terms: "Terms of Service",
+    },
   },
   de: {
     nav: { home: "Startseite", vineyard: "Weinberg", wines: "Weine", shop: "Shop", contact: "Kontakt" },
@@ -255,6 +307,32 @@ export const translations = {
       { title: "Weinberg 5", description: "Sonnenuntergang über dem Weinberg." },
       { title: "Weinberg Video", description: "Kurzes Video unseres Weinbergs." },
     ],
+    privacyPage: {
+      title: "Datenschutzbestimmungen",
+      paragraphs: [
+        "Diese Website respektiert die Privatsphäre ihrer Nutzer und verpflichtet sich zum Schutz personenbezogener Daten gemäß den geltenden Gesetzen, einschließlich der Datenschutz-Grundverordnung (DSGVO).",
+        "Wir erheben nur jene personenbezogenen Daten, die für die Abwicklung von Bestellungen und die Kommunikation mit Kunden erforderlich sind, wie Name, Adresse, E-Mail-Adresse und Telefonnummer.",
+        "Personenbezogene Daten werden ausschließlich zur Bestellabwicklung, Lieferung der Produkte und Beantwortung von Anfragen verwendet und nicht an Dritte weitergegeben, außer wenn dies zur Erbringung der Dienstleistung erforderlich ist (z. B. Lieferdienste).",
+        "Nutzer haben jederzeit das Recht, Auskunft, Berichtigung oder Löschung ihrer personenbezogenen Daten zu verlangen, indem sie uns über die auf der Website angegebenen Kontaktdaten kontaktieren.",
+        "Diese Website kann Cookies verwenden, um die Benutzererfahrung zu verbessern."
+      ],
+    },
+    termsPage: {
+      title: "Nutzungsbedingungen",
+      paragraphs: [
+        "Durch die Nutzung dieser Website erklären Sie sich mit diesen Nutzungsbedingungen vollständig einverstanden. Wenn Sie nicht einverstanden sind, nutzen Sie diese Website bitte nicht.",
+        "Alle Inhalte dieser Website, einschließlich Texte, Bilder und anderer Materialien, sind Eigentum von Vina Ivas und dürfen ohne vorherige Genehmigung nicht verwendet werden.",
+        "Nutzer verpflichten sich, die Website auf rechtmäßige Weise zu nutzen und keine Handlungen vorzunehmen, die der Website oder anderen Nutzern schaden könnten.",
+        "Vina Ivas behält sich das Recht vor, Inhalte und Nutzungsbedingungen jederzeit ohne vorherige Ankündigung zu ändern.",
+        "Obwohl wir uns um die Richtigkeit aller Informationen bemühen, übernehmen wir keine Haftung für mögliche Fehler oder Unterbrechungen im Betrieb der Website."
+      ],
+    },
+    cookieNotice: {
+      text: "Durch die Nutzung dieser Website stimmen Sie der Verwendung von Cookies zu. Wenn Sie damit nicht einverstanden sind, verlassen Sie bitte die Website.",
+      accept: "Akzeptieren",
+      decline: "Ablehnen",
+      terms: "Nutzungsbedingungen",
+    },
   },
 } as const;
 
@@ -271,3 +349,4 @@ export type VineyardItem = typeof translations["hr"]["vineyardItems"][number];
 export type CheckoutTranslations = typeof translations["hr"]["checkout"];
 export type Translations = typeof translations;
 export type Country = (typeof translations)[Language]["countries"][number];
+export type CookieTranslations = typeof translations["hr"]["cookieNotice"];
