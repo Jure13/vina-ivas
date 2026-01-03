@@ -12,25 +12,26 @@ export default function AnimatedCard({ children, delay = 0, onClick }: AnimatedC
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!cardRef.current) return;
+    const currentCard = cardRef.current;
+    if (!currentCard) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && cardRef.current) {
+        if (entry.isIntersecting && currentCard) {
           setTimeout(() => {
-            cardRef.current!.classList.remove("opacity-0", "translate-y-4", "scale-95");
-            cardRef.current!.classList.add("opacity-100", "translate-y-0", "scale-100");
+            currentCard.classList.remove("opacity-0", "translate-y-4", "scale-95");
+            currentCard.classList.add("opacity-100", "translate-y-0", "scale-100");
           }, delay);
-          observer.unobserve(cardRef.current);
+          observer.unobserve(currentCard);
         }
       },
       { threshold: 0.2 }
     );
 
-    observer.observe(cardRef.current);
+    observer.observe(currentCard);
 
     return () => {
-      if (cardRef.current) observer.unobserve(cardRef.current);
+      if (currentCard) observer.unobserve(currentCard);
     };
   }, [delay]);
 

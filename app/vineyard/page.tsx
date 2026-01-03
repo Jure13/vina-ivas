@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import PageHero from "../components/PageHero";
 import { ChevronLeft, ChevronRight, X, Play } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
@@ -22,7 +23,7 @@ export default function VineyardPage() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [fade, setFade] = useState(true);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     if (selectedIndex !== null) {
       setFade(false);
       setTimeout(() => {
@@ -30,9 +31,9 @@ export default function VineyardPage() {
         setFade(true);
       }, 150);
     }
-  };
+  }, [selectedIndex]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (selectedIndex !== null) {
       setFade(false);
       setTimeout(() => {
@@ -40,7 +41,7 @@ export default function VineyardPage() {
         setFade(true);
       }, 150);
     }
-  };
+  }, [selectedIndex]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -52,7 +53,7 @@ export default function VineyardPage() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedIndex]);
+  }, [selectedIndex, handlePrev, handleNext]);
 
   return (
     <>
@@ -73,10 +74,12 @@ export default function VineyardPage() {
           >
             <div className="w-full h-60 overflow-hidden mb-3 rounded relative">
               {item.type === "image" ? (
-                <img
+                <Image
                   src={item.src}
                   alt={t[item.key].title}
-                  className="w-full h-full object-cover transition-transform duration-300"
+                  fill
+                  className="object-cover transition-transform duration-300"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
               ) : (
                 <>
@@ -113,13 +116,17 @@ export default function VineyardPage() {
             </button>
 
             {vineyardItems[selectedIndex].type === "image" ? (
-              <img
-                src={vineyardItems[selectedIndex].src}
-                alt={t[vineyardItems[selectedIndex].key].title}
-                className={`w-full max-h-[70vh] object-contain mb-4 rounded transition-opacity duration-150 ${
-                  fade ? "opacity-100" : "opacity-0"
-                }`}
-              />
+              <div className={`relative w-full max-h-[70vh] mb-4 rounded transition-opacity duration-150 ${
+                fade ? "opacity-100" : "opacity-0"
+              }`} style={{ aspectRatio: "auto", minHeight: "400px" }}>
+                <Image
+                  src={vineyardItems[selectedIndex].src}
+                  alt={t[vineyardItems[selectedIndex].key].title}
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 768px) 100vw, 80vw"
+                />
+              </div>
             ) : (
               <video
                 src={vineyardItems[selectedIndex].src}

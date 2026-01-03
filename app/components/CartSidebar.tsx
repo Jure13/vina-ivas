@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import Image from "next/image";
 import { useCart } from "../context/CartContext";
 import { X } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
@@ -54,7 +55,7 @@ const CartSidebar: React.FC = () => {
           {cart.length === 0 && <p className="text-gray-500 text-center">{t.empty}</p>}
           {cart.map((item) => (
             <div key={item.id} className="flex items-center justify-between border-b pb-2">
-              <img src={item.image} alt={item.name} className="h-12 w-12 object-cover rounded" />
+              <Image src={item.image} alt={item.name} width={48} height={48} className="h-12 w-12 object-cover rounded" />
               <div className="flex-1 ml-2">
                 <p className="font-semibold">{item.name}</p>
                 <p className="text-sm text-gray-500">

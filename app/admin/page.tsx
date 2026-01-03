@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { translations, WineKey } from "../translations";
 
@@ -58,7 +58,7 @@ export default function AdminPage() {
   };
 
   /** ------------------ STOCK ------------------ */
-  const loadStock = async (authToken?: string) => {
+  const loadStock = useCallback(async (authToken?: string) => {
     const tkn = authToken || token;
     if (!tkn) return;
     try {
@@ -72,7 +72,7 @@ export default function AdminPage() {
     } catch (err) {
       console.error("Failed to load stock:", err);
     }
-  };
+  }, [token]);
 
   const updateStockValue = (wineKey: WineKey, newValue: number) => {
     setStock((prev) => ({ ...prev, [wineKey]: newValue }));
@@ -171,8 +171,10 @@ export default function AdminPage() {
     if (savedToken) {
       setToken(savedToken);
       setAuthenticated(true);
+      // Load stock with saved token directly to avoid dependency loop
       loadStock(savedToken);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /** ------------------ RENDER ------------------ */

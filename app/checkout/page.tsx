@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../translations";
@@ -224,7 +225,7 @@ function OrderSummary({
         {cart.map((item: any) => (
           <div key={item.id} className="flex items-center justify-between border-b pb-4">
             <div className="flex items-center space-x-4">
-              <img src={item.image} alt={item.name} className="h-16 w-16 object-cover rounded" />
+              <Image src={item.image} alt={item.name} width={64} height={64} className="h-16 w-16 object-cover rounded" />
               <div>
                 <h3 className="font-semibold">{item.name}</h3>
                 <p className="text-gray-600">

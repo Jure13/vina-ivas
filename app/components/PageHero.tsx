@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "../context/LanguageContext";
+import { translations } from "../translations";
 
 export interface PageHeroProps {
   titleKey?: string;       // e.g., "hero.title"
@@ -24,7 +25,7 @@ export default function PageHero({
   buttonLink,
 }: PageHeroProps) {
   const { language } = useLanguage();
-  const t = require("../translations").translations[language];
+  const t = translations[language];
 
   const [titleVisible, setTitleVisible] = useState(false);
   const [subtitleVisible, setSubtitleVisible] = useState(false);

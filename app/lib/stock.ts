@@ -1,6 +1,6 @@
 // app/lib/stock.ts
 
-let stock: Record<string, number> = {
+const stock: Record<string, number> = {
   wine1: 100,
   wine2: 100,
   wine3: 100,

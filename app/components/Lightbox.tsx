@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
+import Image from "next/image";
 
 interface LightboxProps {
   items: string[];
@@ -10,26 +11,26 @@ interface LightboxProps {
 }
 
 export default function Lightbox({ items, currentIndex, onClose, setIndex }: LightboxProps) {
-  const prev = () => setIndex((currentIndex - 1 + items.length) % items.length);
-  const next = () => setIndex((currentIndex + 1) % items.length);
-
-  const handleKey = (e: KeyboardEvent) => {
-    if (e.key === "Escape") onClose();
-    if (e.key === "ArrowLeft") prev();
-    if (e.key === "ArrowRight") next();
-  };
+  const prev = useCallback(() => setIndex((currentIndex - 1 + items.length) % items.length), [currentIndex, items.length, setIndex]);
+  const next = useCallback(() => setIndex((currentIndex + 1) % items.length), [currentIndex, items.length, setIndex]);
 
   useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
+    };
+
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  });
+  }, [prev, next, onClose]);
 
   return (
     <div
       className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
       onClick={onClose}
     >
-      <div className="relative max-h-[90vh] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
+      <div className="relative max-h-[90vh] max-w-[90vw] flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
         {items[currentIndex].endsWith(".mp4") ? (
           <video
             src={items[currentIndex]}
@@ -38,7 +39,15 @@ export default function Lightbox({ items, currentIndex, onClose, setIndex }: Lig
             className="max-h-[90vh] max-w-[90vw]"
           />
         ) : (
-          <img src={items[currentIndex]} className="max-h-[90vh] max-w-[90vw]" />
+          <div className="relative w-[90vw] h-[90vh] max-w-[90vw] max-h-[90vh]">
+            <Image 
+              src={items[currentIndex]} 
+              alt="" 
+              fill
+              className="object-contain" 
+              sizes="90vw"
+            />
+          </div>
         )}
 
         {/* Navigation */}

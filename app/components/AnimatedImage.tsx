@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
+import Image from "next/image";
 
 interface AnimatedImageProps {
   src: string;
@@ -37,9 +38,11 @@ export default function AnimatedImage({ src, alt, className = "", delay = 0 }: A
       className={`transform transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"} ${className}`}
       style={{ transitionDelay: `${delay}ms` }}
     >
-      <img
+      <Image
         src={src}
         alt={alt}
+        width={800}
+        height={256}
         className="w-full h-64 object-cover rounded-lg shadow-lg transform hover:scale-105 transition duration-300"
       />
     </div>

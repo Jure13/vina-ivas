@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import PageHero from "../components/PageHero";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
@@ -14,7 +15,7 @@ export default function WinesPage() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [fade, setFade] = useState(true);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     if (selectedIndex !== null) {
       setFade(false);
       setTimeout(() => {
@@ -22,9 +23,9 @@ export default function WinesPage() {
         setFade(true);
       }, 150);
     }
-  };
+  }, [selectedIndex, wineKeys.length]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (selectedIndex !== null) {
       setFade(false);
       setTimeout(() => {
@@ -32,7 +33,7 @@ export default function WinesPage() {
         setFade(true);
       }, 150);
     }
-  };
+  }, [selectedIndex, wineKeys.length]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -44,7 +45,7 @@ export default function WinesPage() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedIndex]);
+  }, [selectedIndex, handlePrev, handleNext]);
 
   return (
     <>
@@ -64,10 +65,12 @@ export default function WinesPage() {
             className="group border rounded-lg shadow-lg p-4 flex flex-col items-center text-center hover:shadow-xl transition cursor-pointer"
           >
             <div className="overflow-hidden rounded w-full h-60 mb-3 relative">
-              <img
+              <Image
                 src={t[key].image}
                 alt={t[key].name}
-                className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-95"
+                fill
+                className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-95"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             </div>
             <h3 className="text-xl font-bold">{t[key].name}</h3>
@@ -95,13 +98,17 @@ export default function WinesPage() {
               <X size={28} />
             </button>
 
-            <img
-              src={t[wineKeys[selectedIndex]].image}
-              alt={t[wineKeys[selectedIndex]].name}
-              className={`w-full max-h-[70vh] object-contain mb-4 rounded transition-opacity duration-150 ${
-                fade ? "opacity-100" : "opacity-0"
-              }`}
-            />
+            <div className={`relative w-full max-h-[70vh] mb-4 rounded transition-opacity duration-150 ${
+              fade ? "opacity-100" : "opacity-0"
+            }`} style={{ aspectRatio: "auto", minHeight: "400px" }}>
+              <Image
+                src={t[wineKeys[selectedIndex]].image}
+                alt={t[wineKeys[selectedIndex]].name}
+                fill
+                className="object-contain"
+                sizes="(max-width: 768px) 100vw, 80vw"
+              />
+            </div>
             <h3 className="text-2xl font-bold">{t[wineKeys[selectedIndex]].name}</h3>
             <p className="text-gray-700 mt-2">{t[wineKeys[selectedIndex]].description}</p>
 

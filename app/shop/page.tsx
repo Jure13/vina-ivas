@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import PageHero from "../components/PageHero";
 import { useLanguage } from "../context/LanguageContext";
 import { translations, WineKey } from "../translations";
@@ -64,9 +65,11 @@ export default function ShopPage() {
               key={wineKey}
               className="border rounded-lg shadow-lg p-4 flex flex-col items-center text-center hover:shadow-xl transition"
             >
-              <img
+              <Image
                 src={wine.image}
                 alt={wine.name}
+                width={400}
+                height={240}
                 className="w-full h-60 object-cover mb-3 rounded"
               />
               <h3 className="text-xl font-bold">{wine.name}</h3>
