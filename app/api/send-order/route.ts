@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
                  ${customer.firstName} ${customer.lastName}<br/>
                  ${customer.email}<br/>
                  ${customer.phone}<br/>
-                 ${customer.address}, ${customer.postalCode} ${customer.city}, ${customer.country}<br/>
+                 ${customer.address}, ${customer.postalCode} ${customer.city}, ${customer.customCountry ? customer.customCountry : customer.country}<br/>
                  ${customer.notes ? `Napomene: ${customer.notes}` : ""}
                </p>`
         }

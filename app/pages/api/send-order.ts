@@ -34,7 +34,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       <p><strong>Ime:</strong> ${customer.firstName} ${customer.lastName}</p>
       <p><strong>Email:</strong> ${customer.email}</p>
       <p><strong>Telefon:</strong> ${customer.phone}</p>
-      <p><strong>Adresa:</strong> ${customer.address}, ${customer.postalCode} ${customer.city}, ${customer.country}</p>
+      <p><strong>Adresa:</strong> 
+        ${customer.address}, ${customer.postalCode} ${customer.city}, 
+        ${customer.customCountry ? customer.customCountry : customer.country}
+      </p>
       ${customer.notes ? `<p><strong>Napomena:</strong> ${customer.notes}</p>` : ""}
       <h2>Proizvodi</h2>
       <ul>${orderRows}</ul>
