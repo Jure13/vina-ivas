@@ -14,10 +14,8 @@ export async function POST(req: NextRequest) {
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
       user: process.env.SMTP_USER,
-      // Don't log password
     });
 
-    // Fixed: createTransport (not createTransporter)
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
@@ -28,7 +26,6 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Test connection first
     try {
       await transporter.verify();
       console.log("SMTP connection verified successfully");
@@ -106,7 +103,6 @@ export async function POST(req: NextRequest) {
     console.log("Customer email sent:", customerEmailResult.messageId);
 
     console.log("Sending winery email...");
-    // Winery email
     const wineryEmailResult = await transporter.sendMail({
       from: `"Vina Ivas" <${process.env.SMTP_USER}>`,
       to: process.env.SMTP_USER,

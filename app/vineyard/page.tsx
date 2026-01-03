@@ -9,8 +9,8 @@ import { translations } from "../translations";
 const vineyardItems = [
   { type: "image", src: "/slike/vin1.jpg", key: 0 },
   { type: "image", src: "/slike/vin2.jpg", key: 1 },
-  { type: "image", src: "/slike/vin3.jpg", key: 2 },
-  { type: "image", src: "/slike/vin4.jpg", key: 3 },
+  { type: "image", src: "/slike/collage1.png", key: 2 },
+  { type: "image", src: "/slike/collage2.png", key: 3 },
   { type: "image", src: "/slike/vin10.jpg", key: 4 },
   { type: "video", src: "/slike/vinvid.mp4", key: 5 },
 ];

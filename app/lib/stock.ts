@@ -1,6 +1,5 @@
 // app/lib/stock.ts
 
-// This is temporary in-memory storage. Replace with DB later.
 let stock: Record<string, number> = {
   wine1: 100,
   wine2: 100,

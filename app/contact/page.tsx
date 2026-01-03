@@ -6,7 +6,6 @@ import { Phone, Linkedin, Github, Mail, MapPin } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../translations";
 
-// Better WhatsApp icon
 const WhatsappIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
     <path d="M20.52 3.48a11.92 11.92 0 00-16.88 0 11.92 11.92 0 000 16.88l-1.34 4.86 4.99-1.31a11.92 11.92 0 0012.23-19.43zM12 21.95c-1.2 0-2.39-.33-3.44-.95l-.25-.15-2.96.78.79-2.88-.17-.28a9.93 9.93 0 1114.22-14.2 9.91 9.91 0 01-8.19 16.7z"/>
@@ -22,7 +21,7 @@ export default function ContactPage() {
     <>
       <PageHero
         titleKey="contact.contactUs"
-        subtitleKey=""                   // no subtitle
+        subtitleKey=""
         backgroundImage="/slike/poz2.png"
         minHeight="40vh"
         maxHeight="60vh"

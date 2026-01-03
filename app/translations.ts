@@ -90,7 +90,7 @@ export const translations = {
     vineyardItems: [
       { title: "Vinograd u proljeće", description: "Maraština" },
       { title: "Redovi trsova", description: "Albana bijela" },
-      { title: "Grozdovi spremni za berbu", description: "Plavka" },
+      { title: "Grozdovi spremni za berbu", description: "Cabernet Sauvignon, Merlot i Plavka" },
       { title: "Trsovi bijelog grožđa ljeti", description: "Chardonnay" },
       { title: "Ekološki osviješteni", description: "Iznenađenje" },
       { title: "Kratki video", description: "Pogled na vinograd" },
@@ -196,7 +196,7 @@ export const translations = {
     vineyardItems: [
       { title: "Spring awakening in the vineyard", description: "Maraština (Malvasia Lunga)" },
       { title: "Endless rows of sunlit vines", description: "Albana" },
-      { title: "Grapes ready for harvest", description: "Plavka (native red grape)" },
+      { title: "Grapes ready for harvest", description: "Cabernet Sauvignon, Merlot & Plavka (native red grape)" },
       { title: "White grape vines in the height of summer", description: "Chardonnay" },
       { title: "Rooted in sustainability", description: "A special surprise" },
       { title: "Short video", description: "A glimpse of our vineyard" },
@@ -302,7 +302,7 @@ export const translations = {
     vineyardItems: [
       { title: "Frühlingserwachen im Weinberg", description: "Maraština (Malvasia Bianca Lunga)" },
       { title: "Endlose Reihen sonnenverwöhnter Reben", description: "Albana" },
-      { title: "Trauben bereit für die Lese", description: "Plavka (einheimische rote Traube)" },
+      { title: "Trauben bereit für die Lese", description: "Cabernet Sauivgnon, Merlot und Plavka (einheimische rote Traube)" },
       { title: "Weiße Reben auf dem Höhepunkt des Sommers", description: "Chardonnay" },
       { title: "Tief verwurzelt in Nachhaltigkeit", description: "Eine besondere Überraschung" },
       { title: "Kurzes Video", description: "Ein Blick in unseren Weinberg" },

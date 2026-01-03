@@ -26,7 +26,6 @@ export default function AdminPage() {
       setAuthenticated(true);
       setToken(data.token);
       localStorage.setItem("adminToken", data.token);
-      // Load stock after successful login
       loadStock(data.token);
     } else {
       alert("Wrong password");
@@ -78,7 +77,6 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success) {
         alert("Stock updated successfully!");
-        // Reload stock to confirm changes
         await loadStock();
       } else {
         console.error("Update failed:", data);
@@ -154,7 +152,6 @@ export default function AdminPage() {
     }
   };
 
-  // Auto-login if token exists
   useEffect(() => {
     const savedToken = localStorage.getItem("adminToken");
     if (savedToken) {

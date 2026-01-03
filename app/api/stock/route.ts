@@ -26,7 +26,6 @@ export async function GET() {
     return NextResponse.json(stockObj);
   } catch (err) {
     console.error("Stock fetch error:", err);
-    // Fallback to default values if DB fails
     return NextResponse.json({
       wine1: 0,
       wine2: 0,

@@ -6,7 +6,6 @@ interface AnimatedSectionTitleProps {
   children: ReactNode;
 }
 
-// Forward ref so parent can access it if needed
 const AnimatedSectionTitle = forwardRef<HTMLHeadingElement, AnimatedSectionTitleProps>(
   ({ children }, ref) => {
     const titleRef = useRef<HTMLHeadingElement>(null);

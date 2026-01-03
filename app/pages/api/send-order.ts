@@ -28,7 +28,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const total = cart.reduce((sum: number, i: any) => sum + i.price * i.quantity, 0);
 
-    // ---- Winery email (internal) ----
     const wineryHtml = `
       <h1>Nova narudžba #${orderId}</h1>
       <h2>Podaci kupca</h2>
@@ -49,7 +48,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       html: wineryHtml,
     });
 
-    // ---- Customer email (confirmation) ----
     const customerHtml = `
       <h1>Hvala na narudžbi!</h1>
       <p>Poštovani ${customer.firstName},</p>

@@ -27,7 +27,7 @@ function toISO2Country(input?: string): string | undefined {
   if (!input) return undefined;
   const v = input.trim();
   if (v.length === 2) return v.toUpperCase();
-  const map: Record<string, string> = { croatia: "HR", hrvatska: "HR", italy: "IT", italia: "IT" /* extend as needed */ };
+  const map: Record<string, string> = { croatia: "HR", hrvatska: "HR", italy: "IT", italia: "IT" };
   return map[v.toLowerCase()];
 }
 

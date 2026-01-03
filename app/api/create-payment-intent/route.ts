@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { 
-  apiVersion: "2025-07-30.basil" // Use a stable API version
+  apiVersion: "2025-07-30.basil"
 });
 
 export async function POST(req: NextRequest) {
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     console.log("Creating payment intent for amount:", amount, currency);
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount), // Ensure it's an integer
+      amount: Math.round(amount),
       currency: currency.toLowerCase(),
       automatic_payment_methods: {
         enabled: true,

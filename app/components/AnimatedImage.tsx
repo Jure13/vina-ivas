@@ -6,7 +6,7 @@ interface AnimatedImageProps {
   src: string;
   alt: string;
   className?: string;
-  delay?: number; // optional delay in ms
+  delay?: number;
 }
 
 export default function AnimatedImage({ src, alt, className = "", delay = 0 }: AnimatedImageProps) {

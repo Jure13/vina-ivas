@@ -49,7 +49,6 @@ export default function CheckoutPage() {
     return t.deliveryPaid.replace("{amount}", deliveryFee.toFixed(2));
   };
 
-  /** ---------------- VALIDATION ---------------- */
   const validators: Partial<Record<keyof typeof form, (v: string) => string | null>> = {
     firstName: (v) => (!v.trim() ? t.required : null),
     lastName: (v) => (!v.trim() ? t.required : null),
@@ -128,7 +127,6 @@ export default function CheckoutPage() {
     }
   };
 
-  /** ---------------- RENDER ---------------- */
   if (cart.length === 0)
     return (
       <>
@@ -356,7 +354,6 @@ export default function CheckoutPage() {
   );
 }
 
-/** ---------------- FORM INPUT ---------------- */
 function FormInput({
   label,
   required,
@@ -407,7 +404,6 @@ function FormInput({
   );
 }
 
-/** ---------------- COUNTRY SELECT ---------------- */
 function CountrySelect({
   label,
   value,

@@ -42,7 +42,6 @@ export default function PageHero({
     };
   }, []);
 
-  // Helper to read nested keys like "hero.title"
   const getText = (key?: string) => {
     if (!key) return "";
     const parts = key.split(".");

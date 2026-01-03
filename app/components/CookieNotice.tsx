@@ -26,8 +26,8 @@ export default function CookieNotice() {
 
   const declineCookies = () => {
     localStorage.setItem("cookieConsent", "declined");
-    window.close(); // may fail
-    window.location.href = "https://www.google.com"; // fallback
+    window.close(); // možda
+    window.location.href = "https://www.google.com";
   };
 
   const goToTerms = () => {

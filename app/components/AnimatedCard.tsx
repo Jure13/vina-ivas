@@ -4,7 +4,7 @@ import { useEffect, useRef, ReactNode } from "react";
 
 interface AnimatedCardProps {
   children: ReactNode;
-  delay?: number; // milliseconds for staggered appearance
+  delay?: number;
   onClick?: () => void;
 }
 

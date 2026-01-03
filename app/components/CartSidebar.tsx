@@ -30,7 +30,7 @@ const CartSidebar: React.FC = () => {
 
   const handleCheckout = () => {
     if (hasItems) {
-      setIsOpen(false); // Close sidebar
+      setIsOpen(false);
       router.push("/checkout");
     }
   };
