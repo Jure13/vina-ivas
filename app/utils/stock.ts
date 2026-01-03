@@ -6,6 +6,7 @@ const defaultStock: Record<WineKey, number> = {
   wine3: translations.hr.wines.wine3.stock,
   wine4: translations.hr.wines.wine4.stock,
   wine5: translations.hr.wines.wine5.stock,
+  wine6: translations.hr.wines.wine6.stock,
 };
 
 export function getStock(): Record<WineKey, number> {

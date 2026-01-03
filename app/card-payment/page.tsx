@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useCheckout } from "../context/CheckoutContext";
@@ -14,30 +14,20 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 
 const cardElementOptions: any = {
   style: {
-    base: {
-      fontSize: "16px",
-      "::placeholder": { color: "#aab7c4" },
-    },
+    base: { fontSize: "16px", "::placeholder": { color: "#aab7c4" } },
     invalid: { color: "#9e2146" },
   },
   hidePostalCode: true,
 };
 
-function toISO2Country(input?: string): string | undefined {
-  if (!input) return undefined;
-  const v = input.trim();
-  if (v.length === 2) return v.toUpperCase();
-  const map: Record<string, string> = { croatia: "HR", hrvatska: "HR", italy: "IT", italia: "IT" };
-  return map[v.toLowerCase()];
-}
-
 function CardPaymentForm() {
   const stripe = useStripe();
   const elements = useElements();
-  const { form, paymentMethod } = useCheckout();
   const { cart, clearCart } = useCart();
   const { language } = useLanguage();
   const router = useRouter();
+
+  const { form, paymentMethod, deliveryFee, setDeliveryFee } = useCheckout();
 
   const [clientSecret, setClientSecret] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -47,32 +37,25 @@ function CardPaymentForm() {
   const t = translations[language].checkout;
   const countries = translations[language].countries;
 
-  // Calculate totals including delivery
-  const subtotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
-  const selectedCountry = countries.find(c => c.code === form.country);
-  const deliveryFee = selectedCountry ? selectedCountry.deliveryFee : 0;
+  // Calculate delivery fee dynamically
+  useEffect(() => {
+    const country = countries.find(c => c.code === form.country);
+    if (country) setDeliveryFee(country.deliveryCalculator(cart.reduce((sum, i) => sum + i.price * i.quantity, 0)));
+  }, [form.country, cart, countries, setDeliveryFee]);
+
+  const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const total = subtotal + deliveryFee;
 
-  // Get delivery display text based on language and selection state
+  // Get ISO2 code dynamically
+  const toISO2Country = (input?: string) => {
+    if (!input) return undefined;
+    const country = countries.find(c => c.code === input || c.name.toLowerCase() === input.toLowerCase());
+    return country?.code.toUpperCase();
+  };
+
   const getDeliveryDisplay = () => {
-    if (!form.country || !selectedCountry) {
-      switch (language) {
-        case 'en': return 'TBD';
-        case 'de': return 'Noch festzulegen';
-        case 'hr': 
-        default: return 'Prema odabiru';
-      }
-    }
-    
-    if (deliveryFee === 0) {
-      switch (language) {
-        case 'en': return 'Free';
-        case 'de': return 'Kostenlos';
-        case 'hr': 
-        default: return 'Besplatno';
-      }
-    }
-    
+    if (!form.country) return "Prema odabiru";
+    if (deliveryFee === 0) return "Besplatno";
     return `€${deliveryFee.toFixed(2)}`;
   };
 
@@ -81,7 +64,7 @@ function CardPaymentForm() {
   }, [cart.length, paymentMethod, router]);
 
   useEffect(() => {
-    if (cart.length === 0) return;
+    if (!cart.length) return;
     (async () => {
       try {
         const res = await fetch("/api/create-payment-intent", {
@@ -96,7 +79,7 @@ function CardPaymentForm() {
         setError(e.message || "Failed to initialize payment");
       }
     })();
-  }, [cart.length, total]); // Updated dependency to use total instead of subtotal
+  }, [total, cart.length]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,6 +93,7 @@ function CardPaymentForm() {
       if (!card) throw new Error("Card field not found.");
 
       const countryCode = toISO2Country(form.country);
+
       const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card,
@@ -133,12 +117,7 @@ function CardPaymentForm() {
       const orderRes = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          cart, 
-          customer: form, 
-          deliveryFee, 
-          total 
-        }),
+        body: JSON.stringify({ cart, customer: form, deliveryFee, total }),
       });
       const orderData = await orderRes.json();
       if (!orderData.success) throw new Error(orderData.error || t.orderError);
@@ -146,13 +125,7 @@ function CardPaymentForm() {
       await fetch("/api/send-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          customer: form, 
-          cart, 
-          deliveryFee,
-          total,
-          orderId: orderData.order.id 
-        }),
+        body: JSON.stringify({ customer: form, cart, deliveryFee, total, orderId: orderData.order.id }),
       });
 
       await clearCart();
@@ -169,68 +142,43 @@ function CardPaymentForm() {
       <div className="bg-white p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-6">{t.paymentCard}</h2>
 
-        {/* Updated Order Summary with Delivery */}
         <div className="bg-gray-50 p-4 rounded-lg mb-6">
           <h3 className="font-semibold mb-2">{t.orderSummary}</h3>
-          <div className="space-y-2 text-sm">
-            {cart.map((item) => (
-              <div key={item.id} className="flex justify-between">
-                <span>{item.name} × {item.quantity}</span>
-                <span>€{(item.price * item.quantity).toFixed(2)}</span>
-              </div>
-            ))}
-          </div>
-          
-          {/* Subtotal */}
+          {cart.map(i => (
+            <div key={i.id} className="flex justify-between text-sm">
+              <span>{i.name} × {i.quantity}</span>
+              <span>€{(i.price * i.quantity).toFixed(2)}</span>
+            </div>
+          ))}
+
           <div className="border-t pt-2 mt-2 flex justify-between text-sm">
             <span>Subtotal:</span>
             <span>€{subtotal.toFixed(2)}</span>
           </div>
-          
-          {/* Delivery */}
           <div className="flex justify-between text-sm">
-            <span>{t.delivery}:</span>
-            <span className={!form.country ? "text-gray-500 italic" : ""}>
-              {getDeliveryDisplay()}
-            </span>
+            <span>Dostava:</span>
+            <span className={!form.country ? "text-gray-500 italic" : ""}>{getDeliveryDisplay()}</span>
           </div>
-          
-          {/* Total */}
           <div className="border-t pt-2 mt-2 font-bold flex justify-between">
-            <span>{t.total}:</span>
-            <span>
-              {form.country && selectedCountry 
-                ? `€${total.toFixed(2)}`
-                : `€${subtotal.toFixed(2)} + ${t.delivery.toLowerCase()}`
-              }
-            </span>
+            <span>Ukupno:</span>
+            <span>€{total.toFixed(2)}</span>
           </div>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t.paymentCard}
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t.paymentCard}</label>
           <div className="border border-gray-300 rounded-lg p-3">
-            <CardElement options={cardElementOptions} onChange={(e) => setCardComplete(e.complete)} />
+            <CardElement options={cardElementOptions} onChange={e => setCardComplete(e.complete)} />
           </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mt-4">
-              {error}
-            </div>
-          )}
+          {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mt-4">{error}</div>}
 
           <button
             type="submit"
             disabled={!stripe || !clientSecret || loading || !cardComplete}
-            className={`mt-6 w-full py-3 rounded-lg font-semibold transition ${
-              !stripe || !clientSecret || loading || !cardComplete
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-wine text-white hover:bg-wine/90"
-            }`}
+            className={`mt-6 w-full py-3 rounded-lg font-semibold transition ${!stripe || !clientSecret || loading || !cardComplete ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-wine text-white hover:bg-wine/90"}`}
           >
-            {loading ? t.processing : `Pay €${total.toFixed(2)}`}
+            {loading ? t.processing : `Plati €${total.toFixed(2)}`}
           </button>
         </form>
       </div>
@@ -241,13 +189,7 @@ function CardPaymentForm() {
 export default function Page() {
   return (
     <>
-      <PageHero
-        titleKey="checkout.title"
-        subtitleKey=""
-        backgroundImage="/slike/poz2.png"
-        minHeight="40vh"
-        maxHeight="60vh"
-      />
+      <PageHero titleKey="checkout.title" subtitleKey="" backgroundImage="/slike/poz2.png" minHeight="40vh" maxHeight="60vh" />
       <Elements stripe={stripePromise}>
         <CardPaymentForm />
       </Elements>

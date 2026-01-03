@@ -31,10 +31,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [stock, setStock] = useState<Record<string, number>>({});
 
-  // Load stock from backend SQLite API
   const refreshStock = async () => {
     try {
-      const res = await fetch("/api/stock"); 
+      const res = await fetch("/api/stock");
       const data = await res.json();
       setStock(data);
     } catch (err) {
@@ -49,7 +48,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const addToCart = async (item: Omit<CartItem, "quantity"> & { quantity?: number }) => {
     const quantity = item.quantity ?? 1;
 
-    // Check current stock first
     if ((stock[item.id] ?? 0) < quantity) {
       alert(`Not enough stock for ${item.name}`);
       return;
@@ -67,7 +65,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     setIsOpen(true);
 
-    // Update stock in DB via API
     await fetch("/api/admin/update-stock", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -81,7 +78,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const item = cart.find(i => i.id === id);
     if (!item) return;
 
-    // Restore stock in DB
     await fetch("/api/admin/update-stock", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -93,7 +89,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const clearCart = async () => {
-    // Restore all stock
     const updatedStock: Record<string, number> = {};
     cart.forEach(i => {
       updatedStock[i.id] = (stock[i.id] ?? 0) + i.quantity;

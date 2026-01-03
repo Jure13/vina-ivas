@@ -6,6 +6,7 @@ let stock: Record<string, number> = {
   wine3: 100,
   wine4: 100,
   wine5: 100,
+  wine6: 100,
 };
 
 export function getStock() {

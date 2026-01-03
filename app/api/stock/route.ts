@@ -4,34 +4,24 @@ import path from "path";
 
 const dbPath = path.join(process.cwd(), "data", "winery.sqlite");
 
-interface StockRow {
-  wine_id: string;
-  quantity: number;
-}
-
 export async function GET() {
   try {
     const db = new Database(dbPath);
-    const stockRows: StockRow[] = db.prepare("SELECT wine_id, quantity FROM stock").all() as StockRow[];
-    console.log("Stock rows from DB:", stockRows);
-    db.close();
 
-    console.log("Database path:", dbPath);
-    console.log("Database exists:", require('fs').existsSync(dbPath));
+    // Get all wines
+    const wines = db.prepare("SELECT id FROM wines").all() as { id: string }[];
+    const stockRows = db.prepare("SELECT wine_id, quantity FROM stock").all() as { wine_id: string, quantity: number }[];
 
     const stockObj: Record<string, number> = {};
-    stockRows.forEach((r) => (stockObj[r.wine_id] = r.quantity));
-    console.log("Stock object being returned:", stockObj);
+    wines.forEach(w => {
+      const row = stockRows.find(r => r.wine_id === w.id);
+      stockObj[w.id] = row?.quantity ?? 0;
+    });
 
+    db.close();
     return NextResponse.json(stockObj);
   } catch (err) {
     console.error("Stock fetch error:", err);
-    return NextResponse.json({
-      wine1: 0,
-      wine2: 0,
-      wine3: 0,
-      wine4: 0,
-      wine5: 0,
-    });
+    return NextResponse.json({});
   }
 }

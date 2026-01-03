@@ -10,7 +10,7 @@ export default function WinesPage() {
   const { language } = useLanguage();
   const t = translations[language].wines;
 
-  const wineKeys: WineKey[] = ["wine1", "wine2", "wine3", "wine4", "wine5"];
+  const wineKeys = Object.keys(t) as WineKey[];
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [fade, setFade] = useState(true);
 

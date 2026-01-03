@@ -11,6 +11,7 @@ export interface CheckoutForm {
   city: string;
   postalCode: string;
   country: string;
+  customCountry: string;
   notes: string;
 }
 
@@ -19,6 +20,8 @@ interface CheckoutContextType {
   setForm: React.Dispatch<React.SetStateAction<CheckoutForm>>;
   paymentMethod: "card" | "cod" | null;
   setPaymentMethod: React.Dispatch<React.SetStateAction<"card" | "cod" | null>>;
+  deliveryFee: number;
+  setDeliveryFee: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const CheckoutContext = createContext<CheckoutContextType | undefined>(undefined);
@@ -33,12 +36,16 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
     city: "",
     postalCode: "",
     country: "",
+    customCountry: "",
     notes: "",
   });
   const [paymentMethod, setPaymentMethod] = useState<"card" | "cod" | null>(null);
+  const [deliveryFee, setDeliveryFee] = useState<number>(0);
 
   return (
-    <CheckoutContext.Provider value={{ form, setForm, paymentMethod, setPaymentMethod }}>
+    <CheckoutContext.Provider
+      value={{ form, setForm, paymentMethod, setPaymentMethod, deliveryFee, setDeliveryFee }}
+    >
       {children}
     </CheckoutContext.Provider>
   );

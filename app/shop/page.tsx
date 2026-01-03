@@ -11,13 +11,10 @@ export default function ShopPage() {
   const wines = translations[language].wines;
   const { addToCart, stock } = useCart();
 
-  const [quantities, setQuantities] = useState<Record<WineKey, number>>({
-    wine1: 0,
-    wine2: 0,
-    wine3: 0,
-    wine4: 0,
-    wine5: 0,
-  });
+  // Dynamic quantities for all wines (including wine6)
+  const [quantities, setQuantities] = useState<Record<WineKey, number>>(
+    Object.keys(wines).reduce((acc, key) => ({ ...acc, [key]: 0 }), {}) as Record<WineKey, number>
+  );
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -76,7 +73,7 @@ export default function ShopPage() {
               <p className="text-gray-600 mb-2">{wine.description}</p>
 
               <p className="text-sm text-gray-500 mb-2">
-                {stock[wineKey] ?? 0} bottles available
+                {stock[wineKey] ?? 0} {translations[language].shop.bottlesAvailable}
               </p>
 
               <div className="flex items-center gap-2 mt-auto mb-2">

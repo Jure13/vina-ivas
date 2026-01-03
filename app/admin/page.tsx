@@ -4,65 +4,85 @@ import React, { useState, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { translations, WineKey } from "../translations";
 
+type Stock = Partial<Record<WineKey, number>>;
+
+type OrderItem = {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  date?: string;
+  orderId: string;
+};
+
 export default function AdminPage() {
   const { language } = useLanguage();
 
   const [authenticated, setAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
-  const [token, setToken] = useState("");
-  const [orders, setOrders] = useState<any[]>([]);
-  const [stock, setStock] = useState<Record<string, number>>({});
+  const [token, setToken] = useState<string | null>(null);
+  const [stock, setStock] = useState<Stock>({});
+  const [orders, setOrders] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(false);
 
+  /** ------------------ AUTH ------------------ */
   const handleLogin = async () => {
-    const res = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: passwordInput }),
-    });
-    const data = await res.json();
-
-    if (data.success) {
-      setAuthenticated(true);
-      setToken(data.token);
-      localStorage.setItem("adminToken", data.token);
-      loadStock(data.token);
-    } else {
-      alert("Wrong password");
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: passwordInput }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAuthenticated(true);
+        setToken(data.token);
+        localStorage.setItem("adminToken", data.token);
+        loadStock(data.token);
+      } else {
+        alert("Wrong password");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("Login failed");
     }
   };
 
   const handleLogout = () => {
     setAuthenticated(false);
     setPasswordInput("");
-    setToken("");
+    setToken(null);
     setStock({});
+    setOrders([]);
     localStorage.removeItem("adminToken");
   };
 
+  /** ------------------ STOCK ------------------ */
   const loadStock = async (authToken?: string) => {
-    const tokenToUse = authToken || token;
+    const tkn = authToken || token;
+    if (!tkn) return;
     try {
-      const res = await fetch("/api/stock");
+      const res = await fetch("/api/stock", {
+        headers: { Authorization: `Bearer ${tkn}` },
+      });
       if (res.ok) {
-        const stockData = await res.json();
-        console.log("Loaded stock:", stockData);
-        setStock(stockData);
+        const data: Stock = await res.json();
+        setStock(data);
       }
     } catch (err) {
       console.error("Failed to load stock:", err);
     }
   };
 
+  const updateStockValue = (wineKey: WineKey, newValue: number) => {
+    setStock((prev) => ({ ...prev, [wineKey]: newValue }));
+  };
+
   const handleSave = async () => {
-    console.log("Token when saving:", token);
-    console.log("About to send request with stock:", stock);
-    
     if (!token) {
       alert("No authentication token");
       return;
     }
-
     setLoading(true);
     try {
       const res = await fetch("/api/admin/update-stock", {
@@ -73,7 +93,6 @@ export default function AdminPage() {
         },
         body: JSON.stringify({ stock }),
       });
-
       const data = await res.json();
       if (data.success) {
         alert("Stock updated successfully!");
@@ -90,68 +109,63 @@ export default function AdminPage() {
     }
   };
 
-  const updateStockValue = (wineKey: string, newValue: number) => {
-    setStock(prev => ({
-      ...prev,
-      [wineKey]: newValue
-    }));
-  };
-
+  /** ------------------ ORDERS ------------------ */
   const fetchOrders = async () => {
     if (!token) return;
-
-    const res = await fetch("/api/orders", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      const flattenedOrders = data.flatMap((order: any) => {
-        const items = JSON.parse(order.items);
-        return items.map((item: any) => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          date: order.date,
-          orderId: order.id,
-        }));
+    try {
+      const res = await fetch("/api/orders", {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      setOrders(flattenedOrders);
-    } else {
-      console.error("Failed to fetch orders, status:", res.status);
-      alert("Failed to fetch orders");
+      if (res.ok) {
+        const data = await res.json();
+        const flattened: OrderItem[] = data.flatMap((order: any) => {
+          const items = JSON.parse(order.items);
+          return items.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            date: order.date,
+            orderId: order.id,
+          }));
+        });
+        setOrders(flattened);
+      } else {
+        console.error("Failed to fetch orders:", res.status);
+        alert("Failed to fetch orders");
+      }
+    } catch (err) {
+      console.error("Fetch orders error:", err);
     }
   };
 
   const downloadOrdersCSV = async () => {
     if (!token) return;
-
-    const res = await fetch("/api/orders", {
-      method: "GET",
-      headers: {
-        Accept: "text/csv",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (res.ok) {
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "orders.csv";
-      a.click();
-      window.URL.revokeObjectURL(url);
-    } else {
-      console.error("Failed to download CSV, status:", res.status);
-      alert("Failed to download CSV");
+    try {
+      const res = await fetch("/api/orders", {
+        headers: {
+          Accept: "text/csv",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "orders.csv";
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } else {
+        console.error("Failed to download CSV:", res.status);
+        alert("Failed to download CSV");
+      }
+    } catch (err) {
+      console.error("CSV download error:", err);
     }
   };
 
+  /** ------------------ EFFECTS ------------------ */
   useEffect(() => {
     const savedToken = localStorage.getItem("adminToken");
     if (savedToken) {
@@ -161,6 +175,7 @@ export default function AdminPage() {
     }
   }, []);
 
+  /** ------------------ RENDER ------------------ */
   if (!authenticated) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100">
@@ -201,7 +216,6 @@ export default function AdminPage() {
       {Object.keys(translations[language].wines).map((key) => {
         const wineKey = key as WineKey;
         const wine = translations[language].wines[wineKey];
-
         return (
           <div
             key={wineKey}
@@ -213,8 +227,8 @@ export default function AdminPage() {
             </div>
             <input
               type="number"
-              value={stock[wineKey] ?? 0}
               min={0}
+              value={stock[wineKey] ?? 0}
               onChange={(e) =>
                 updateStockValue(wineKey, parseInt(e.target.value) || 0)
               }
@@ -223,7 +237,6 @@ export default function AdminPage() {
           </div>
         );
       })}
-
       <button
         onClick={handleSave}
         disabled={loading}

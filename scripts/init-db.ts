@@ -42,6 +42,7 @@ if (rowCount === 0) {
     { wine_id: "wine3", quantity: 100 },
     { wine_id: "wine4", quantity: 100 },
     { wine_id: "wine5", quantity: 100 },
+    { wine_id: "wine6", quantity: 100 },
   ];
 
   const insertStmt = db.prepare(

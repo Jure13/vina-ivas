@@ -3,8 +3,7 @@ import nodemailer from "nodemailer";
 
 export async function POST(req: NextRequest) {
   try {
-    const { customer, cart, orderId } = await req.json();
-
+    const { customer, cart, orderId, deliveryFee = 0, total } = await req.json();
     if (!customer?.email) {
       return NextResponse.json({ error: "Customer email is required" }, { status: 400 });
     }
@@ -49,7 +48,13 @@ export async function POST(req: NextRequest) {
       )
       .join("");
 
-    const total = cart.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0);
+    const deliveryHtml =
+      deliveryFee > 0
+        ? `<tr>
+            <td style="padding:8px; border-bottom:1px solid #ddd;" colspan="3"><strong>Dostava</strong></td>
+            <td style="padding:8px; text-align:right; border-bottom:1px solid #ddd;">€${deliveryFee.toFixed(2)}</td>
+          </tr>`
+        : "";
 
     const emailHtml = (recipient: "customer" | "winery") => `
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin:auto;">
@@ -70,10 +75,11 @@ export async function POST(req: NextRequest) {
           </thead>
           <tbody>
             ${itemsHtml}
+            ${deliveryHtml}
           </tbody>
         </table>
 
-        <p style="text-align:right; font-weight:bold; font-size:16px; margin-top:10px;">Ukupno: €${total.toFixed(2)}</p>
+        <p style="text-align:right; font-weight:bold; font-size:16px;">Ukupno: €${total.toFixed(2)}</p>
 
         ${
           recipient === "customer"

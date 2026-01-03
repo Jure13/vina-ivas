@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
+import Database from "better-sqlite3";
 import path from "path";
 
-const ordersFile = path.join(process.cwd(), "data", "orders.json");
+const dbPath = path.join(process.cwd(), "data", "winery.sqlite");
 
 export async function GET(req: Request) {
   try {
@@ -14,8 +14,12 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // --- Ensure orders file exists ---
-    if (!fs.existsSync(ordersFile)) {
+    // --- Read orders from SQLite ---
+    const db = new Database(dbPath);
+    const orders = db.prepare("SELECT * FROM orders").all();
+    db.close();
+
+    if (!orders.length) {
       return new Response("No orders found", {
         status: 200,
         headers: {
@@ -25,37 +29,22 @@ export async function GET(req: Request) {
       });
     }
 
-    // --- Load orders ---
-    const rawOrders = fs.readFileSync(ordersFile, "utf-8");
-    const orders = JSON.parse(rawOrders);
-
-    if (!Array.isArray(orders) || orders.length === 0) {
-      return new Response("No orders found", {
-        status: 200,
-        headers: {
-          "Content-Type": "text/csv",
-          "Content-Disposition": "attachment; filename=orders.csv",
-        },
-      });
-    }
-
-    // --- Convert to CSV ---
+    // --- Convert orders to CSV ---
     const header = ["Order ID", "Date", "Wine ID", "Wine Name", "Quantity", "Price", "Subtotal"];
     const rows: string[] = [header.join(",")];
 
     for (const order of orders) {
-      for (const item of order.items) {
-        rows.push(
-          [
-            order.id,
-            order.date,
-            item.id,
-            `"${item.name}"`, // quotes to protect commas
-            item.quantity,
-            item.price.toFixed(2),
-            (item.price * item.quantity).toFixed(2),
-          ].join(",")
-        );
+      const items = JSON.parse(order.items);
+      for (const item of items) {
+        rows.push([
+          order.id,
+          order.date,
+          item.id,
+          `"${item.name}"`,
+          item.quantity,
+          item.price.toFixed(2),
+          (item.price * item.quantity).toFixed(2),
+        ].join(","));
       }
     }
 

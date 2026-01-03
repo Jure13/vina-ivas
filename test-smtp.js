@@ -6,8 +6,8 @@ const transporter = nodemailer.createTransport({
   port: 465,       // SSL port
   secure: true,    // true for 465, false for 587
   auth: {
-    user: "kontakt@vina-ivas.hr",
-    pass: "mfxainuygzzkxvnm", 
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS, 
   },
 });
 
