@@ -46,12 +46,22 @@ function CardPaymentForm() {
   const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const total = subtotal + deliveryFee;
 
-  // Get ISO2 code dynamically
+  // Get ISO2 code dynamically from countries list
   const toISO2Country = (input?: string) => {
     if (!input) return undefined;
-    const country = countries.find(c => c.code === input || c.name.toLowerCase() === input.toLowerCase());
-    return country?.code.toUpperCase();
-  };
+  
+    // Find the country in our list
+    const country = countries.find(c => c.code === input);
+  
+    // For "rest of" options, don't send country to Stripe
+    // Stripe will use postal code and other billing info instead
+    if (!country || ['restEU', 'restEurope', 'restWorld'].includes(country.code)) {
+      return undefined;
+    }
+  
+    // Return the actual country code (HR, DE, AT, etc.)
+    return country.code.toUpperCase();
+};
 
   const getDeliveryDisplay = () => {
     if (!form.country) return "Prema odabiru";
@@ -95,7 +105,7 @@ function CardPaymentForm() {
       const countryCode = toISO2Country(form.country);
 
       const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
+      payment_method: {
           card,
           billing_details: {
             name: `${form.firstName} ${form.lastName}`.trim(),
@@ -105,11 +115,12 @@ function CardPaymentForm() {
               line1: form.address || undefined,
               city: form.city || undefined,
               postal_code: form.postalCode || undefined,
+              // Only include country if we have a valid 2-letter ISO code
               ...(countryCode ? { country: countryCode } : {}),
             },
           },
-        },
-      });
+      },
+    });
 
       if (stripeError) throw stripeError;
       if (paymentIntent?.status !== "succeeded") throw new Error("Payment was not completed.");
@@ -117,7 +128,7 @@ function CardPaymentForm() {
       const orderRes = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart, customer: form, deliveryFee, total }),
+        body: JSON.stringify({ cart, customer: form, deliveryFee, total, paymentIntentId: paymentIntent.id }),
       });
       const orderData = await orderRes.json();
       if (!orderData.success) throw new Error(orderData.error || t.orderError);

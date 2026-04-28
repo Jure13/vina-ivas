@@ -8,6 +8,7 @@ import { translations } from "../translations";
 import { useRouter } from "next/navigation";
 import PageHero from "../components/PageHero";
 import { useCheckout } from "../context/CheckoutContext";
+import toast from "react-hot-toast";
 
 type Country = {
   code: string;
@@ -129,11 +130,11 @@ export default function CheckoutPage() {
         await clearCart();
         router.push(`/order-success?orderId=${data.order.id}`);
       } else {
-        alert(data.error || t.orderError);
+        toast.error(data.error || t.orderError);
       }
     } catch (err) {
       console.error(err);
-      alert(t.orderError);
+      toast.error(t.orderError);
     } finally {
       setLoading(false);
     }
@@ -209,7 +210,7 @@ export default function CheckoutPage() {
 }
 
 // ---------------- ORDER SUMMARY COMPONENT ----------------
-function OrderSummary({
+const OrderSummary = React.memo(function OrderSummary({
   cart,
   subtotal,
   total,
@@ -263,10 +264,10 @@ function OrderSummary({
       </div>
     </div>
   );
-}
+});
 
 // ---------------- CUSTOMER FORM COMPONENT ----------------
-function CustomerForm({
+const CustomerForm = React.memo(function CustomerForm({
   form,
   errors,
   handleInputChange,
@@ -393,20 +394,37 @@ function CustomerForm({
         <button
           type="submit"
           disabled={loading || !paymentMethod}
-          className={`w-full py-3 rounded-lg text-lg font-semibold transition ${
-            paymentMethod
+          className={`w-full py-3 rounded-lg text-lg font-semibold transition flex items-center justify-center gap-2 ${
+            paymentMethod && !loading
               ? "bg-wine text-white hover:bg-wine/90"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}
         >
+          {loading && (
+            <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          )}
           {loading ? t.processing : t.placeOrder}
         </button>
       </form>
     </div>
   );
-}
+});
 
 // ---------------- SHARED FORM INPUT ----------------
+function ErrorMessage({ message }: { message: string }) {
+  return (
+    <div className="flex items-center gap-1 mt-1">
+      <svg className="w-4 h-4 text-red-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+      </svg>
+      <p className="text-red-500 text-sm">{message}</p>
+    </div>
+  );
+}
+
 function FormInput({
   label,
   required,
@@ -432,8 +450,11 @@ function FormInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           rows={3}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-wine"
+          className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 transition ${
+            error ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-wine"
+          }`}
         />
+        {error && <ErrorMessage message={error} />}
       </div>
     );
   }
@@ -441,17 +462,17 @@ function FormInput({
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label} {required && "*"}
+        {label} {required && <span className="text-red-500">*</span>}
       </label>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-wine ${
-          error ? "border-red-500" : "border-gray-300"
+        className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 transition ${
+          error ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-wine"
         }`}
       />
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      {error && <ErrorMessage message={error} />}
     </div>
   );
 }

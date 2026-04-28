@@ -91,11 +91,13 @@ export default function WinesPage() {
             <button
               onClick={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 setSelectedIndex(null);
               }}
-              className="absolute top-3 right-3 text-gray-600 hover:text-black"
+              className="absolute top-3 right-3 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 z-50 transition"
+              aria-label="Close"
             >
-              <X size={28} />
+              <X size={24} className="text-white"/>
             </button>
 
             <div className={`relative w-full max-h-[70vh] mb-4 rounded transition-opacity duration-150 ${

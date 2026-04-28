@@ -1,27 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import Stripe from "stripe";
+import { serverConfig } from "@/app/lib/config";
+import { rateLimit, getClientIp } from "@/app/lib/rateLimit";
+
+const paymentIntentSchema = z.object({
+  amount: z.number().int().min(50).max(10000000),
+  currency: z.string().regex(/^[a-z]{3}$/).default("eur"),
+});
 
 function getStripe() {
-  const apiKey = process.env.STRIPE_SECRET_KEY;
+  const apiKey = serverConfig.stripe.secretKey;
   if (!apiKey) {
     throw new Error("STRIPE_SECRET_KEY is not configured");
   }
-  return new Stripe(apiKey, { 
-    apiVersion: "2025-07-30.basil"
+  return new Stripe(apiKey, {
+    apiVersion: "2025-07-30.basil",
   });
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { amount, currency = "eur" } = await req.json();
+    const clientIp = getClientIp(req);
+    const { limited } = rateLimit(`payment-intent:${clientIp}`, 20, 60 * 60 * 1000);
 
-    if (!amount || amount < 50) { // Stripe minimum is 50 cents
-      return NextResponse.json({ 
-        error: "Invalid amount" 
-      }, { status: 400 });
+    if (limited) {
+      return NextResponse.json(
+        { error: "Too many payment requests. Please try again later." },
+        { status: 429 }
+      );
     }
 
-    console.log("Creating payment intent for amount:", amount, currency);
+    const body = await req.json();
+    const validation = paymentIntentSchema.safeParse(body);
+
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          error: "Invalid payment data",
+          details: validation.error.issues,
+        },
+        { status: 400 }
+      );
+    }
+
+    const { amount, currency } = validation.data;
 
     const stripe = getStripe();
     const paymentIntent = await stripe.paymentIntents.create({
@@ -32,20 +55,27 @@ export async function POST(req: NextRequest) {
       },
       metadata: {
         source: "vina-ivas-webshop",
+        created_at: new Date().toISOString(),
       },
     });
 
-    console.log("Payment intent created:", paymentIntent.id);
-
-    return NextResponse.json({ 
+    return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id
+      paymentIntentId: paymentIntent.id,
     });
-
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Payment intent creation error:", error);
-    return NextResponse.json({ 
-      error: error.message || "Failed to create payment intent" 
-    }, { status: 500 });
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Validation error", details: error.issues },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: "Failed to create payment intent" },
+      { status: 500 }
+    );
   }
 }

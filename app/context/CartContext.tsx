@@ -1,7 +1,7 @@
-// app/context/CartContext.tsx
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo } from "react";
+import toast from "react-hot-toast";
 
 export interface CartItem {
   id: string;
@@ -22,6 +22,8 @@ interface CartContextType {
   stock: Record<string, number>;
   updateStock: (id: string, newStock: number) => Promise<void>;
   refreshStock: () => Promise<void>;
+  cartTotal: number;
+  itemCount: number;
 }
 
 export const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -31,6 +33,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [stock, setStock] = useState<Record<string, number>>({});
 
+  const cartTotal = useMemo(
+    () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    [cart]
+  );
+
+  const itemCount = useMemo(
+    () => cart.reduce((sum, item) => sum + item.quantity, 0),
+    [cart]
+  );
+
   const refreshStock = async () => {
     try {
       const res = await fetch("/api/stock");
@@ -38,6 +50,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       setStock(data);
     } catch (err) {
       console.error("Failed to load stock:", err);
+      toast.error("Failed to load stock information");
     }
   };
 
@@ -49,7 +62,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const quantity = item.quantity ?? 1;
 
     if ((stock[item.id] ?? 0) < quantity) {
-      alert(`Not enough stock for ${item.name}`);
+      toast.error(`Not enough stock for ${item.name}`);
       return;
     }
 
@@ -64,6 +77,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
 
     setIsOpen(true);
+    toast.success(`${item.name} added to cart!`);
 
     await fetch("/api/admin/update-stock", {
       method: "POST",
@@ -75,7 +89,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const removeFromCart = async (id: string) => {
-    const item = cart.find(i => i.id === id);
+    const item = cart.find((i) => i.id === id);
     if (!item) return;
 
     await fetch("/api/admin/update-stock", {
@@ -84,13 +98,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       body: JSON.stringify({ stock: { [id]: (stock[id] ?? 0) + item.quantity } }),
     });
 
-    setCart(prev => prev.filter(i => i.id !== id));
+    setCart((prev) => prev.filter((i) => i.id !== id));
+    toast.success(`${item.name} removed from cart`);
     await refreshStock();
   };
 
   const clearCart = async () => {
     const updatedStock: Record<string, number> = {};
-    cart.forEach(i => {
+    cart.forEach((i) => {
       updatedStock[i.id] = (stock[i.id] ?? 0) + i.quantity;
     });
 
@@ -101,6 +116,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
 
     setCart([]);
+    toast.success("Cart cleared");
     await refreshStock();
   };
 
@@ -117,7 +133,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, clearCart, isOpen, toggleCart, setIsOpen, stock, updateStock, refreshStock }}
+      value={{
+        cart,
+        addToCart,
+        removeFromCart,
+        clearCart,
+        isOpen,
+        toggleCart,
+        setIsOpen,
+        stock,
+        updateStock,
+        refreshStock,
+        cartTotal,
+        itemCount,
+      }}
     >
       {children}
     </CartContext.Provider>

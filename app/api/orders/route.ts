@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Database from "better-sqlite3";
 import path from "path";
+import { verifyAdmin } from "@/app/lib/auth";
 
 const dbPath = path.join(process.cwd(), "data", "winery.sqlite");
 
@@ -13,16 +14,23 @@ interface OrderRow {
 
 export async function GET(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader || authHeader !== `Bearer ${process.env.ADMIN_TOKEN}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Verify admin authentication
+    const admin = verifyAdmin(req);
+    if (!admin) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
     const db = new Database(dbPath);
-    const orders: OrderRow[] = db.prepare("SELECT * FROM orders").all() as OrderRow[];
+    const orders: OrderRow[] = db
+      .prepare("SELECT * FROM orders ORDER BY date DESC")
+      .all() as OrderRow[];
     db.close();
 
     const accept = req.headers.get("accept") || "";
+    
     if (accept.includes("text/csv")) {
       const header = "Order ID,Date,Wine ID,Wine Name,Price,Quantity,Subtotal\n";
       const rows = orders.flatMap((order) => {
@@ -40,7 +48,7 @@ export async function GET(req: NextRequest) {
         );
       });
       const csv = header + rows.join("\n");
-      
+
       return new NextResponse(csv, {
         headers: {
           "Content-Type": "text/csv",
@@ -50,8 +58,12 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(orders);
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+
+  } catch (error) {
+    console.error("Fetch orders error:", error);
+    return NextResponse.json(
+      { error: "Server error" },
+      { status: 500 }
+    );
   }
 }

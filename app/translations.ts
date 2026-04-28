@@ -65,7 +65,8 @@ export const translations = {
       },
     },
     shop: { addToCart: "Dodaj u košaricu",
-            bottlesAvailable: "- broj dostupnih boca"
+            bottlesAvailable: "- broj dostupnih boca",
+            outOfStock: "Rasprodano"
     },
     cart: { title: "Košarica", empty: "Košarica je prazna", remove: "Ukloni", clear: "Očisti košaricu", total: "Ukupno", checkout: "Na blagajnu", plusDelivery: " + dostava*", 
     deliveryNote: "*Dostava se računa na blagajni"  }, 
@@ -215,7 +216,8 @@ export const translations = {
       },
     },
     shop: { addToCart: "Add to cart",
-            bottlesAvailable: "- bottles available"
+            bottlesAvailable: "- bottles available",
+            outOfStock: "Out of Stock"
     },
     cart: { title: "Cart", empty: "Your cart is empty", remove: "Remove", clear: "Clear cart", total: "Total", checkout: "Checkout", plusDelivery: " + delivery*", 
     deliveryNote: "*Delivery calculated at checkout"  },
@@ -365,7 +367,8 @@ export const translations = {
       },
     },
     shop: { addToCart: "In den Warenkorb",
-            bottlesAvailable: "- Flashcen verfügbar"
+            bottlesAvailable: "- Flaschen verfügbar",
+            outOfStock: "Ausverkauft"
     },
     cart: { title: "Warenkorb", empty: "Der Warenkorb ist leer", remove: "Entfernen", clear: "Warenkorb leeren", total: "Gesamt", checkout: "Zur Kasse", plusDelivery: " + Lieferung*", 
     deliveryNote: "*Lieferung wird an der Kasse berechnet"  },

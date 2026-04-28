@@ -1,46 +1,64 @@
 import { NextRequest, NextResponse } from "next/server";
-import nodemailer from "nodemailer";
+import { sendOrderSchema } from "@/app/lib/validation";
+import { z } from "zod";
+import { serverConfig } from "@/app/lib/config";
+import { rateLimit, getClientIp } from "@/app/lib/rateLimit";
+import { sendEmailWithRetry } from "@/app/lib/emailQueue";
+
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  };
+  return text.replace(/[&<>"']/g, (m) => map[m]);
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const { customer, cart, orderId, deliveryFee = 0, total } = await req.json();
-    if (!customer?.email) {
-      return NextResponse.json({ error: "Customer email is required" }, { status: 400 });
+    const clientIp = getClientIp(req);
+    const { limited } = rateLimit(`send-order:${clientIp}`, 5, 60 * 60 * 1000);
+
+    if (limited) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
     }
 
-    console.log("Attempting to send email to:", customer.email);
-    console.log("SMTP Config:", {
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      user: process.env.SMTP_USER,
-    });
+    const body = await req.json();
+    const validation = sendOrderSchema.safeParse(body);
 
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: true,
-      auth: { 
-        user: process.env.SMTP_USER, 
-        pass: process.env.SMTP_PASS 
-      },
-    });
-
-    try {
-      await transporter.verify();
-      console.log("SMTP connection verified successfully");
-    } catch (verifyError) {
-      console.error("SMTP verification failed:", verifyError);
-      return NextResponse.json({ 
-        error: "SMTP connection failed", 
-        details: verifyError 
-      }, { status: 500 });
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          error: "Invalid request data",
+          details: validation.error.issues,
+        },
+        { status: 400 }
+      );
     }
+
+    const { customer, cart, orderId, deliveryFee = 0, total } = validation.data;
+
+    if (!serverConfig.smtp.host || !serverConfig.smtp.user || !serverConfig.smtp.pass) {
+      console.error("SMTP not configured properly");
+      return NextResponse.json(
+        { error: "Email service not configured" },
+        { status: 500 }
+      );
+    }
+
+    const calculatedTotal =
+      total ?? cart.reduce((sum, i) => sum + i.price * i.quantity, 0) + deliveryFee;
 
     const itemsHtml = cart
       .map(
-        (item: any) => `
+        (item) => `
         <tr>
-          <td style="padding:8px; border-bottom:1px solid #ddd;">${item.name}</td>
+          <td style="padding:8px; border-bottom:1px solid #ddd;">${escapeHtml(item.name)}</td>
           <td style="padding:8px; text-align:center; border-bottom:1px solid #ddd;">${item.quantity}</td>
           <td style="padding:8px; text-align:right; border-bottom:1px solid #ddd;">€${item.price.toFixed(2)}</td>
           <td style="padding:8px; text-align:right; border-bottom:1px solid #ddd;">€${(item.price * item.quantity).toFixed(2)}</td>
@@ -59,7 +77,7 @@ export async function POST(req: NextRequest) {
     const emailHtml = (recipient: "customer" | "winery") => `
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin:auto;">
         <div style="text-align:center; margin-bottom:20px;">
-          <img src="https://www.vina-ivas.hr/logo.png" alt="Vina Ivas" style="height: 80px;" />
+          <img src="https://www.vina-ivas.hr/slike/logo.png" alt="Vina Ivas" style="height: 80px;" />
         </div>
         <h2 style="color:#8B0000;">${recipient === "customer" ? "Hvala na narudžbi!" : "Nova narudžba"}</h2>
         <p>Order ID: <strong>#${orderId}</strong></p>
@@ -79,18 +97,18 @@ export async function POST(req: NextRequest) {
           </tbody>
         </table>
 
-        <p style="text-align:right; font-weight:bold; font-size:16px;">Ukupno: €${total.toFixed(2)}</p>
+        <p style="text-align:right; font-weight:bold; font-size:16px;">Ukupno: €${calculatedTotal.toFixed(2)}</p>
 
         ${
           recipient === "customer"
             ? `<p>Vaša narudžba će uskoro biti obrađena i poslana.</p>`
             : `<h3>Podaci kupca:</h3>
                <p style="font-size:14px; line-height:1.5;">
-                 ${customer.firstName} ${customer.lastName}<br/>
-                 ${customer.email}<br/>
-                 ${customer.phone}<br/>
-                 ${customer.address}, ${customer.postalCode} ${customer.city}, ${customer.customCountry ? customer.customCountry : customer.country}<br/>
-                 ${customer.notes ? `Napomene: ${customer.notes}` : ""}
+                 ${escapeHtml(customer.firstName)} ${escapeHtml(customer.lastName)}<br/>
+                 ${escapeHtml(customer.email)}<br/>
+                 ${escapeHtml(customer.phone)}<br/>
+                 ${escapeHtml(customer.address)}, ${escapeHtml(customer.postalCode)} ${escapeHtml(customer.city)}, ${escapeHtml(customer.customCountry || customer.country)}<br/>
+                 ${customer.notes ? `Napomene: ${escapeHtml(customer.notes)}` : ""}
                </p>`
         }
 
@@ -98,36 +116,40 @@ export async function POST(req: NextRequest) {
       </div>
     `;
 
-    console.log("Sending customer email...");
-    // Customer email
-    const customerEmailResult = await transporter.sendMail({
-      from: `"Vina Ivas" <${process.env.SMTP_USER}>`,
-      to: customer.email,
-      subject: `Vaša narudžba #${orderId} potvrđena`,
-      html: emailHtml("customer"),
-    });
-    console.log("Customer email sent:", customerEmailResult.messageId);
+    const [customerSuccess, winerySuccess] = await Promise.all([
+      sendEmailWithRetry({
+        to: customer.email,
+        subject: `Vaša narudžba #${orderId} potvrđena`,
+        html: emailHtml("customer"),
+      }),
+      sendEmailWithRetry({
+        to: serverConfig.smtp.user!,
+        subject: `Nova narudžba #${orderId}`,
+        html: emailHtml("winery"),
+      }),
+    ]);
 
-    console.log("Sending winery email...");
-    const wineryEmailResult = await transporter.sendMail({
-      from: `"Vina Ivas" <${process.env.SMTP_USER}>`,
-      to: process.env.SMTP_USER,
-      subject: `Nova narudžba #${orderId}`,
-      html: emailHtml("winery"),
-    });
-    console.log("Winery email sent:", wineryEmailResult.messageId);
+    if (!customerSuccess || !winerySuccess) {
+      console.warn("Some emails failed to send after retries");
+    }
 
-    return NextResponse.json({ 
-      success: true, 
-      customerEmailId: customerEmailResult.messageId,
-      wineryEmailId: wineryEmailResult.messageId 
+    return NextResponse.json({
+      success: true,
+      emailStatus: {
+        customer: customerSuccess,
+        winery: winerySuccess,
+      },
     });
-
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Email sending error:", error);
-    return NextResponse.json({ 
-      error: "Failed to send email", 
-      details: error.message 
-    }, { status: 500 });
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Validation error", details: error.issues },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
   }
 }
