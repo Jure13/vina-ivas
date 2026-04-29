@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendOrderSchema } from "@/app/lib/validation";
 import { z } from "zod";
-import { serverConfig } from "@/app/lib/config";
 import { rateLimit, getClientIp } from "@/app/lib/rateLimit";
 import { sendEmailWithRetry } from "@/app/lib/emailQueue";
 
@@ -43,8 +42,8 @@ export async function POST(req: NextRequest) {
 
     const { customer, cart, orderId, deliveryFee = 0, total } = validation.data;
 
-    if (!serverConfig.smtp.host || !serverConfig.smtp.user || !serverConfig.smtp.pass) {
-      console.error("SMTP not configured properly");
+    if (!process.env.SMTP_PASS) {
+      console.error("SendGrid API key (SMTP_PASS) not configured");
       return NextResponse.json(
         { error: "Email service not configured" },
         { status: 500 }
