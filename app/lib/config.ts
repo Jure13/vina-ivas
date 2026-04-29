@@ -9,7 +9,7 @@ const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
 export const serverConfig = {
   adminPasswordHash: process.env.ADMIN_PASSWORD_HASH ||
     (isDevelopment || isBuildPhase
-      ? "$2b$10$0zHgyAwvAGhabMuJueChluFPKXRK2Yg3ZtFbFoMAilNWCrrZxFbva"
+      ? "$2b$10$2BrhYOnDWo9NZ9GFcHiUeOsnr1goPa0oWSlOHM3BCwDHez2vV5h/S"
       : (() => { throw new Error('ADMIN_PASSWORD_HASH must be configured in production'); })()
     ),
 
