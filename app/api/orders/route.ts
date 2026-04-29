@@ -12,6 +12,26 @@ interface OrderRow {
   items: string;
 }
 
+export async function DELETE(req: NextRequest) {
+  try {
+    const admin = verifyAdmin(req);
+    if (!admin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const db = new Database(dbPath);
+    try {
+      const result = db.prepare("DELETE FROM orders").run();
+      return NextResponse.json({ success: true, deleted: result.changes });
+    } finally {
+      db.close();
+    }
+  } catch (error) {
+    console.error("Delete orders error:", error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     // Verify admin authentication

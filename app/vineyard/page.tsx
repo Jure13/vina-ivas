@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import PageHero from "../components/PageHero";
-import { ChevronLeft, ChevronRight, X, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../translations";
 
@@ -111,10 +111,10 @@ export default function VineyardPage() {
                 e.preventDefault();
                 setSelectedIndex(null);
               }}
-              className="absolute top-3 right-3 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 z-50 transition"
+              className="absolute top-2 right-2 w-10 h-10 flex items-center justify-center rounded-full bg-black/60 text-white text-lg leading-none hover:bg-black/80 transition z-50"
               aria-label="Close"
             >
-              <X size={284} className="text-white"/>
+              ✕
             </button>
 
             {vineyardItems[selectedIndex].type === "image" ? (

@@ -21,13 +21,28 @@ import toast from "react-hot-toast";
 
 type Stock = Partial<Record<WineKey, number>>;
 
+type OrderRow = {
+  id: number;
+  date: string;
+  total: number;
+  items: string;
+  customer_email: string | null;
+  customer_name: string | null;
+  payment_status: string | null;
+  payment_intent_id: string | null;
+};
+
 type OrderItem = {
   id: string;
   name: string;
   price: number;
   quantity: number;
   date?: string;
-  orderId: string;
+  orderId: number;
+  customerEmail: string | null;
+  customerName: string | null;
+  paymentStatus: string | null;
+  paymentIntentId: string | null;
 };
 
 export default function AdminPage() {
@@ -167,16 +182,21 @@ export default function AdminPage() {
       }
 
       if (res.ok) {
-        const data = await res.json();
-        const flattened: OrderItem[] = data.flatMap((order: any) => {
-          const items = JSON.parse(order.items);
-          return items.map((item: any) => ({
+        const data: OrderRow[] = await res.json();
+        const flattened: OrderItem[] = data.flatMap((order) => {
+          const items: { id: string; name: string; price: number; quantity: number }[] =
+            JSON.parse(order.items);
+          return items.map((item) => ({
             id: item.id,
             name: item.name,
             price: item.price,
             quantity: item.quantity,
             date: order.date,
             orderId: order.id,
+            customerEmail: order.customer_email,
+            customerName: order.customer_name,
+            paymentStatus: order.payment_status,
+            paymentIntentId: order.payment_intent_id,
           }));
         });
         setOrders(flattened);
@@ -224,6 +244,35 @@ export default function AdminPage() {
     } catch (err) {
       console.error("CSV download error:", err);
       toast.error("Error downloading CSV");
+    }
+  };
+
+  const clearOrders = async () => {
+    if (!token) return;
+    if (!window.confirm("Are you sure you want to delete all orders? This cannot be undone.")) return;
+
+    try {
+      const res = await fetch("/api/orders", {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.status === 401) {
+        handleLogout();
+        toast.error("Session expired. Please login again.");
+        return;
+      }
+
+      const data = await res.json();
+      if (data.success) {
+        setOrders([]);
+        toast.success(`Deleted ${data.deleted} order(s)`);
+      } else {
+        toast.error("Failed to clear orders");
+      }
+    } catch (err) {
+      console.error("Clear orders error:", err);
+      toast.error("Error clearing orders");
     }
   };
 
@@ -360,32 +409,58 @@ export default function AdminPage() {
         >
           Download CSV
         </button>
+        <button
+          onClick={clearOrders}
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+        >
+          Clear Orders
+        </button>
       </div>
 
       {orders.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="w-full border border-gray-300">
+          <table className="w-full border border-gray-300 text-sm">
             <thead>
               <tr className="bg-gray-200 text-center">
                 <th className="border px-3 py-2">Order ID</th>
-                <th className="border px-3 py-2">Item ID</th>
-                <th className="border px-3 py-2">Name</th>
-                <th className="border px-3 py-2">Price</th>
-                <th className="border px-3 py-2">Quantity</th>
                 <th className="border px-3 py-2">Date</th>
+                <th className="border px-3 py-2">Customer</th>
+                <th className="border px-3 py-2">Email</th>
+                <th className="border px-3 py-2">Item</th>
+                <th className="border px-3 py-2">Qty</th>
+                <th className="border px-3 py-2">Price</th>
+                <th className="border px-3 py-2">Payment</th>
               </tr>
             </thead>
             <tbody>
-              {orders.map((o, idx) => (
-                <tr key={idx} className="text-center">
-                  <td className="border px-3 py-2">{o.orderId}</td>
-                  <td className="border px-3 py-2">{o.id}</td>
-                  <td className="border px-3 py-2">{o.name}</td>
-                  <td className="border px-3 py-2">€{o.price}</td>
-                  <td className="border px-3 py-2">{o.quantity}</td>
-                  <td className="border px-3 py-2">{o.date ?? "-"}</td>
-                </tr>
-              ))}
+              {orders.map((o, idx) => {
+                const statusColor =
+                  o.paymentStatus === "paid"
+                    ? "bg-green-100 text-green-800"
+                    : o.paymentStatus === "failed"
+                    ? "bg-red-100 text-red-800"
+                    : o.paymentStatus === "cod"
+                    ? "bg-blue-100 text-blue-800"
+                    : "bg-yellow-100 text-yellow-800";
+                return (
+                  <tr key={idx} className="text-center">
+                    <td className="border px-3 py-2 font-mono">#{o.orderId}</td>
+                    <td className="border px-3 py-2 whitespace-nowrap">
+                      {o.date ? new Date(o.date).toLocaleString("hr-HR") : "-"}
+                    </td>
+                    <td className="border px-3 py-2">{o.customerName ?? "-"}</td>
+                    <td className="border px-3 py-2">{o.customerEmail ?? "-"}</td>
+                    <td className="border px-3 py-2 text-left">{o.name}</td>
+                    <td className="border px-3 py-2">{o.quantity}</td>
+                    <td className="border px-3 py-2">€{o.price.toFixed(2)}</td>
+                    <td className="border px-3 py-2">
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${statusColor}`}>
+                        {o.paymentStatus ?? "pending"}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

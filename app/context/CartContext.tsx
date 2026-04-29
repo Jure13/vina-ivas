@@ -20,7 +20,7 @@ interface CartContextType {
   toggleCart: () => void;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   stock: Record<string, number>;
-  updateStock: (id: string, newStock: number) => Promise<void>;
+  updateStock: () => Promise<void>;
   refreshStock: () => Promise<void>;
   cartTotal: number;
   itemCount: number;
@@ -78,54 +78,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     setIsOpen(true);
     toast.success(`${item.name} added to cart!`);
-
-    await fetch("/api/admin/update-stock", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ stock: { [item.id]: (stock[item.id] ?? 0) - quantity } }),
-    });
-
-    await refreshStock();
   };
 
   const removeFromCart = async (id: string) => {
     const item = cart.find((i) => i.id === id);
     if (!item) return;
 
-    await fetch("/api/admin/update-stock", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ stock: { [id]: (stock[id] ?? 0) + item.quantity } }),
-    });
-
     setCart((prev) => prev.filter((i) => i.id !== id));
     toast.success(`${item.name} removed from cart`);
-    await refreshStock();
   };
 
   const clearCart = async () => {
-    const updatedStock: Record<string, number> = {};
-    cart.forEach((i) => {
-      updatedStock[i.id] = (stock[i.id] ?? 0) + i.quantity;
-    });
-
-    await fetch("/api/admin/update-stock", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ stock: updatedStock }),
-    });
-
     setCart([]);
     toast.success("Cart cleared");
-    await refreshStock();
   };
 
-  const updateStock = async (id: string, newStock: number) => {
-    await fetch("/api/admin/update-stock", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ stock: { [id]: newStock } }),
-    });
+  const updateStock = async () => {
     await refreshStock();
   };
 

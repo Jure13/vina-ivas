@@ -67,9 +67,10 @@ export default function Lightbox({ items, currentIndex, onClose, setIndex }: Lig
         {/* Close */}
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-white text-2xl font-bold"
+          className="absolute top-2 right-2 w-10 h-10 flex items-center justify-center rounded-full bg-black/60 text-white text-lg leading-none hover:bg-black/80 transition"
+          aria-label="Close"
         >
-          ×
+          ✕
         </button>
       </div>
     </div>
