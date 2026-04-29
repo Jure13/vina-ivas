@@ -14,7 +14,6 @@ const loginSchema = z.object({
 const ADMIN_PASSWORD_HASH = serverConfig.adminPasswordHash;
 
 export async function POST(req: NextRequest) {
-  console.log('HASH FROM ENV:', process.env.ADMIN_PASSWORD_HASH);
   try {
     const clientIp = getClientIp(req);
     
