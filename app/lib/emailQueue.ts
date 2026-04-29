@@ -19,7 +19,7 @@ export async function sendEmailWithRetry(job: EmailJob): Promise<boolean> {
   const transporter = nodemailer.createTransport({
     host: serverConfig.smtp.host,
     port: serverConfig.smtp.port,
-    secure: true,
+    secure: serverConfig.smtp.port === 465,
     auth: {
       user: serverConfig.smtp.user,
       pass: serverConfig.smtp.pass,

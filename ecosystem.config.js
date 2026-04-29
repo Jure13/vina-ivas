@@ -11,6 +11,10 @@ module.exports = {
     env: {
       NODE_ENV: 'production',
       PORT: 3000,
+      SMTP_HOST: 'smtp.sendgrid.net',
+      SMTP_PORT: 587,
+      SMTP_USER: 'apikey',
+      // SMTP_PASS: set this on the server — do not commit the SendGrid API key
     },
     error_file: './logs/err.log',
     out_file: './logs/out.log',
