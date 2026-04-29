@@ -30,7 +30,7 @@ export async function sendEmailWithRetry(job: EmailJob): Promise<boolean> {
 
   try {
     await transporter.sendMail({
-      from: `"Vina Ivas" <${serverConfig.smtp.user}>`,
+      from: `"Vina Ivas" <kontakt@vina-ivas.hr>`,
       to: job.to,
       subject: job.subject,
       html: job.html,

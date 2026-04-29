@@ -95,7 +95,7 @@ try {
 
 try {
   const info = await transporter.sendMail({
-    from: `"Vina Ivas Test" <${user}>`,
+    from: `"Vina Ivas Test" <kontakt@vina-ivas.hr>`,
     to: recipient,
     subject: 'SMTP test — Vina Ivas',
     html: '<p>If you received this, SMTP is working correctly.</p>',

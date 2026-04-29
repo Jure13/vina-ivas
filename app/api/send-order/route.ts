@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
         html: emailHtml("customer"),
       }),
       sendEmailWithRetry({
-        to: serverConfig.smtp.user!,
+        to: 'kontakt@vina-ivas.hr',
         subject: `Nova narudžba #${orderId}`,
         html: emailHtml("winery"),
       }),
