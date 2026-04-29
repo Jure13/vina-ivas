@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverConfig } from "@/app/lib/config";
 import { z } from "zod";
-import { verifyPassword, generateToken } from "@/app/lib/auth";
+import { verifyPasswordSha256, generateToken } from "@/app/lib/auth";
 import { rateLimit, getClientIp } from "../../../lib/rateLimit";
 
 // Validation schema
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const isValid = await verifyPassword(password, ADMIN_PASSWORD_HASH);
+    const isValid = verifyPasswordSha256(password, ADMIN_PASSWORD_HASH);
 
     if (!isValid) {
       return NextResponse.json(

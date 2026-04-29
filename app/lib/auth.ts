@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { NextRequest } from 'next/server';
 import { serverConfig } from './config';
 
@@ -17,6 +18,12 @@ export interface JWTPayload {
 export async function hashPassword(password: string): Promise<string> {
   const salt = await bcrypt.genSalt(10);
   return bcrypt.hash(password, salt);
+}
+
+// Verify password using SHA256
+export function verifyPasswordSha256(password: string, hashedPassword: string): boolean {
+  const hash = crypto.createHash('sha256').update(password).digest('hex');
+  return hash === hashedPassword;
 }
 
 // Verify password

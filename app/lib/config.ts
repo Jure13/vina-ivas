@@ -7,10 +7,10 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
 
 export const serverConfig = {
-  adminPasswordHash: process.env.ADMIN_PASSWORD_HASH ||
+  adminPasswordHash: process.env.ADMIN_PASSWORD_SHA256 ||
     (isDevelopment || isBuildPhase
-      ? "$2b$10$2BrhYOnDWo9NZ9GFcHiUeOsnr1goPa0oWSlOHM3BCwDHez2vV5h/S"
-      : (() => { throw new Error('ADMIN_PASSWORD_HASH must be configured in production'); })()
+      ? "dev-sha256-placeholder"
+      : (() => { throw new Error('ADMIN_PASSWORD_SHA256 must be configured in production'); })()
     ),
 
   jwtSecret: process.env.JWT_SECRET ||
