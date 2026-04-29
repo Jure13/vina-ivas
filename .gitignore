@@ -60,4 +60,6 @@ logs/
 .pm2/
 
 # backups
-backups/
+backups/ecosystem.config.js
+
+ecosystem.config.js
