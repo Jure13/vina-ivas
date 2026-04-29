@@ -37,5 +37,11 @@ if (typeof window === 'undefined') {
     hasAdminHash: !!serverConfig.adminPasswordHash,
     hasJwtSecret: !!serverConfig.jwtSecret,
     environment: process.env.NODE_ENV,
+    smtp: {
+      host: serverConfig.smtp.host || '(not set)',
+      port: serverConfig.smtp.port || '(not set)',
+      user: serverConfig.smtp.user || '(not set)',
+      hasPass: !!serverConfig.smtp.pass,
+    },
   });
 }
