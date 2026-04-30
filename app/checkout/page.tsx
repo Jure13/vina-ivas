@@ -33,6 +33,9 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof typeof form, string>>>({});
 
+  //Prevent empty cart redirecti
+  const [orderPlaced, setOrderPlaced] = useState(false);
+
   // ---------------- DERIVED VALUES ----------------
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const selectedCountry: Country | undefined = countries.find((c) => c.code === form.country);
@@ -83,8 +86,8 @@ export default function CheckoutPage() {
 
   // Redirect if cart is empty
   useEffect(() => {
-    if (mounted && cart.length === 0) router.push("/shop");
-  }, [cart, mounted, router]);
+    if (mounted && cart.length === 0 && !orderPlaced) router.push("/shop");
+  }, [cart, mounted, router, orderPlaced]);
 
   // Update delivery fee
   useEffect(() => {
@@ -126,6 +129,8 @@ export default function CheckoutPage() {
             orderId: data.order.id,
           }),
         });
+
+        setOrderPlaced(true);
 
         await clearCart();
         router.push(`/order-success?orderId=${data.order.id}`);
