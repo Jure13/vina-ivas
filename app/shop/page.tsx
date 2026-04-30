@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 export default function ShopPage() {
   const { language } = useLanguage();
   const wines = translations[language].wines;
-  const { addToCart, stock } = useCart();
+  const { addToCart, stock, cart } = useCart();
 
   const [quantities, setQuantities] = useState<Record<WineKey, number>>(
     Object.keys(wines).reduce((acc, key) => ({ ...acc, [key]: 0 }), {}) as Record<WineKey, number>
@@ -45,10 +45,10 @@ export default function ShopPage() {
     );
   }
 
-  const increment = (id: WineKey) =>
+  const increment = (id: WineKey, availableQty: number) =>
     setQuantities((prev) => ({
       ...prev,
-      [id]: Math.min((prev[id] ?? 0) + 1, stock[id] ?? 0),
+      [id]: Math.min((prev[id] ?? 0) + 1, availableQty),
     }));
 
   const decrement = (id: WineKey) =>
@@ -59,14 +59,16 @@ export default function ShopPage() {
 
   const handleAdd = async (id: WineKey, wine: (typeof wines)[WineKey]) => {
     const quantity = quantities[id] ?? 0;
+    const cartQty = cart.find((i) => i.id === id)?.quantity ?? 0;
+    const availableQty = Math.max(0, (stock[id] ?? 0) - cartQty);
 
     if (quantity === 0) {
       toast.error("Please select a quantity");
       return;
     }
 
-    if (quantity > (stock[id] ?? 0)) {
-      toast.error(`Only ${stock[id]} bottles available`);
+    if (quantity > availableQty) {
+      toast.error(`Only ${availableQty} bottles available`);
       return;
     }
 
@@ -101,7 +103,9 @@ export default function ShopPage() {
       <section className="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {Object.entries(wines).map(([key, wine], index) => {
           const wineKey = key as WineKey;
-          const isOutOfStock = (stock[wineKey] ?? 0) === 0;
+          const cartQty = cart.find((i) => i.id === wineKey)?.quantity ?? 0;
+          const availableQty = Math.max(0, (stock[wineKey] ?? 0) - cartQty);
+          const isOutOfStock = availableQty === 0;
 
           return (
             <div
@@ -126,7 +130,7 @@ export default function ShopPage() {
               <p className={`text-sm mb-2 ${isOutOfStock ? "text-red-600 font-semibold" : "text-gray-500"}`}>
                 {isOutOfStock
                   ? translations[language].shop.outOfStock
-                  : `${stock[wineKey] ?? 0} ${translations[language].shop.bottlesAvailable}`}
+                  : `${availableQty} ${translations[language].shop.bottlesAvailable}`}
               </p>
 
               <div className="flex items-center gap-2 mt-auto mb-2">
@@ -139,8 +143,8 @@ export default function ShopPage() {
                 </button>
                 <span className="w-8 text-center">{quantities[wineKey]}</span>
                 <button
-                  onClick={() => increment(wineKey)}
-                  disabled={isOutOfStock || loading}
+                  onClick={() => increment(wineKey, availableQty)}
+                  disabled={isOutOfStock || loading || quantities[wineKey] >= availableQty}
                   className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   +
