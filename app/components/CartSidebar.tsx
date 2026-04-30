@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../translations";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 const CartSidebar: React.FC = () => {
   const { language } = useLanguage();
