@@ -90,7 +90,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const clearCart = async () => {
     setCart([]);
-    toast.success("Cart cleared");
   };
 
   const updateStock = async () => {
