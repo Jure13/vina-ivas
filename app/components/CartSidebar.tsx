@@ -45,6 +45,7 @@ const CartSidebar: React.FC = () => {
   const confirmClear = async () => {
     await clearCart();
     setShowClearConfirm(false);
+    toast.success(t.cleared ?? "Cart cleared");
   };
 
   const confirmLabel = {
