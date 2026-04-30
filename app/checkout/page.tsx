@@ -19,7 +19,7 @@ type Country = {
 
 export default function CheckoutPage() {
   // ---------------- CONTEXTS ----------------
-  const { cart, clearCart } = useCart();
+  const { cart, clearCart, refreshStock } = useCart();
   const { language } = useLanguage();
   const router = useRouter();
   const { form, setForm, paymentMethod, setPaymentMethod, deliveryFee, setDeliveryFee } =
@@ -133,6 +133,7 @@ export default function CheckoutPage() {
         setOrderPlaced(true);
 
         await clearCart();
+        await refreshStock();
         router.push(`/order-success?orderId=${data.order.id}`);
       } else {
         toast.error(data.error || t.orderError);

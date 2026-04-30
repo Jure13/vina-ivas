@@ -56,6 +56,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     refreshStock();
+    const interval = setInterval(refreshStock, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const addToCart = async (item: Omit<CartItem, "quantity"> & { quantity?: number }) => {

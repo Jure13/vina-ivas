@@ -23,7 +23,7 @@ const cardElementOptions: any = {
 function CardPaymentForm() {
   const stripe = useStripe();
   const elements = useElements();
-  const { cart, clearCart } = useCart();
+  const { cart, clearCart, refreshStock } = useCart();
   const { language } = useLanguage();
   const router = useRouter();
 
@@ -140,6 +140,7 @@ function CardPaymentForm() {
       });
 
       await clearCart();
+      await refreshStock();
       router.replace(`/order-success?orderId=${orderData.order.id}`);
     } catch (err: any) {
       setError(err.message || t.orderError);
