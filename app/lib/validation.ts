@@ -34,4 +34,5 @@ export const sendOrderSchema = z.object({
   orderId: z.union([z.string(), z.number()]),
   deliveryFee: z.number().min(0).optional(),
   total: z.number().positive().optional(),
+  language: z.enum(["hr", "en", "de"]).optional().default("hr"),
 });

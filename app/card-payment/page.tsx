@@ -136,7 +136,7 @@ function CardPaymentForm() {
       await fetch("/api/send-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer: form, cart, deliveryFee, total, orderId: orderData.order.id }),
+        body: JSON.stringify({ customer: form, cart, deliveryFee, total, orderId: orderData.order.id, language }),
       });
 
       await clearCart();

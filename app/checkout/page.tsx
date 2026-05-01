@@ -127,6 +127,7 @@ export default function CheckoutPage() {
             deliveryFee: deliveryFee || 0,
             total,
             orderId: data.order.id,
+            language,
           }),
         });
 
