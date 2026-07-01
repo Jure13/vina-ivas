@@ -1,3 +1,5 @@
+import nodemailer from "nodemailer";
+
 interface EmailJob {
   to: string;
   subject: string;
@@ -14,37 +16,32 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function sendEmailWithRetry(job: EmailJob): Promise<boolean> {
-  const apiKey = process.env.SMTP_PASS;
-  if (!apiKey) {
-    console.error("SendGrid API key (SMTP_PASS) is not configured");
-    return false;
-  }
+function createTransporter() {
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: true,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+}
 
+export async function sendEmailWithRetry(job: EmailJob): Promise<boolean> {
   const attempt = (job.retries ?? 0) + 1;
 
   try {
-    const res = await fetch("https://api.sendgrid.com/v3/mail/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        personalizations: [{ to: [{ email: job.to }] }],
-        from: { email: FROM_EMAIL, name: FROM_NAME },
-        subject: job.subject,
-        content: [{ type: "text/html", value: job.html }],
-      }),
+    const transporter = createTransporter();
+    await transporter.sendMail({
+      from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+      to: job.to,
+      subject: job.subject,
+      html: job.html,
     });
 
-    if (res.ok || res.status === 202) {
-      console.log(`Email sent successfully to ${job.to}`);
-      return true;
-    }
-
-    const errorBody = await res.text();
-    throw new Error(`SendGrid ${res.status}: ${errorBody}`);
+    console.log(`Email sent successfully to ${job.to}`);
+    return true;
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error(`Email send failed (attempt ${attempt}/${MAX_RETRIES}):`, message);

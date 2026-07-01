@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
 
     const { customer, cart, orderId, deliveryFee = 0, total, language = "hr" } = validation.data;
 
-    if (!process.env.SMTP_PASS) {
-      console.error("SendGrid API key (SMTP_PASS) not configured");
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.error("SMTP credentials (SMTP_USER / SMTP_PASS) not configured");
       return NextResponse.json(
         { error: "Email service not configured" },
         { status: 500 }
