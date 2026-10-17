@@ -63,3 +63,6 @@ logs/
 backups/ecosystem.config.js
 
 ecosystem.config.js
+
+# deploy
+DEPLOY.md
