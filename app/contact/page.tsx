@@ -2,7 +2,7 @@
 
 import React from "react";
 import PageHero from "../components/PageHero";
-import { Phone, Linkedin, Github, Mail, MapPin } from "lucide-react";
+import { Phone, Linkedin, Github, Mail, MapPin, Languages } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../translations";
 
@@ -39,6 +39,10 @@ export default function ContactPage() {
                 <WhatsappIcon className="ml-2 w-5 h-5 text-green-600" />
               </span>
             </p>
+            <p className="flex items-center gap-2 mt-1">
+              <Languages size={18} />
+              {t.ivicaLanguages}
+            </p>
           </div>
 
           {/* Jure */}
@@ -50,6 +54,10 @@ export default function ContactPage() {
               <span className="inline-block transform transition duration-300 hover:-translate-y-1">
                 <WhatsappIcon className="ml-2 w-5 h-5 text-green-600" />
               </span>
+            </p>
+            <p className="flex items-center gap-2 mt-1">
+              <Languages size={18} />
+              {t.jureLanguages}
             </p>
 
             <div className="flex gap-4 mt-2">

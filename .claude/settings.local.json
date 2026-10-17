@@ -3,7 +3,22 @@
     "allow": [
       "Bash(npx ts-node *)",
       "Bash(npx tsc *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(cat app/lib/rateLimit.ts)",
+      "Bash(cat app/lib/rateLimit.js)",
+      "Bash(cat next.config.js)",
+      "Bash(cat next.config.ts)",
+      "Bash(cat next.config.mjs)",
+      "Bash(git fetch *)",
+      "Bash(git reset *)",
+      "Bash(git push *)",
+      "Bash(npm audit *)",
+      "Bash(npm run *)",
+      "Bash(sqlite3 data/winery.sqlite \".schema\")",
+      "Bash(git rm *)",
+      "Bash(node *)"
     ]
   }
 }

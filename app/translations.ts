@@ -128,7 +128,7 @@ export const translations = {
       { code: "restWorld", name: "Ostale zemlje svijeta", deliveryFee: 50, deliveryCalculator: () => 50 },
     ],
     vineyardCTA: { title: "Zanima vas naše vino?", button: "Posjetite webshop" },
-    contact: { contactUs: "Kontaktirajte nas", address: "Adresa" },
+    contact: { contactUs: "Kontaktirajte nas", address: "Adresa", ivicaLanguages: "Hrvatski", jureLanguages: "Engleski, Njemački" },
     privacy: { title: "Pravila privatnosti", content: "Ovdje ide sadržaj pravila privatnosti..." },
     terms: { title: "Uvjeti korištenja", content: "Ovdje ide sadržaj uvjeta korištenja..." },
     vineyardItems: [
@@ -279,7 +279,7 @@ export const translations = {
       { code: "restWorld", name: "Rest of the world", deliveryFee: 50, deliveryCalculator: () => 50 },
     ],
     vineyardCTA: { title: "Interested in our wines?", button: "Visit our shop" },
-    contact: { contactUs: "Contact Us", address: "Address" },
+    contact: { contactUs: "Contact Us", address: "Address", ivicaLanguages: "Croatian", jureLanguages: "English, German" },
     privacy: { title: "Privacy Policy", content: "Privacy policy content goes here..." },
     terms: { title: "Terms of Service", content: "Terms of service content goes here..." },
     vineyardItems: [
@@ -430,7 +430,7 @@ export const translations = {
       { code: "restWorld", name: "Andere Länder", deliveryFee: 50, deliveryCalculator: () => 50 },
     ],
     vineyardCTA: { title: "Interessieren Sie sich für unsere Weine?", button: "Besuchen Sie unseren Shop" },
-    contact: { contactUs: "Kontaktieren Sie uns", address: "Adresse" },
+    contact: { contactUs: "Kontaktieren Sie uns", address: "Adresse", ivicaLanguages: "Kroatisch", jureLanguages: "Englisch, Deutsch" },
     privacy: { title: "Datenschutzbestimmungen", content: "Hier steht der Inhalt der Datenschutzbestimmungen..." },
     terms: { title: "Nutzungsbedingungen", content: "Hier steht der Inhalt der Nutzungsbedingungen..." },
     vineyardItems: [

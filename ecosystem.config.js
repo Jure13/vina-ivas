@@ -13,7 +13,7 @@ module.exports = {
       PORT: 3000,
       // SMTP non-secrets are in .env.production (committed to git)
       // SMTP_PASS must be set here — replace with your actual SendGrid API key
-      SMTP_PASS: 'REPLACE_WITH_SENDGRID_API_KEY',
+      SMTP_PASS: 'hqxu niql syrd ybws',
     },
     error_file: './logs/err.log',
     out_file: './logs/out.log',
